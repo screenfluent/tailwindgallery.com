@@ -1,93 +1,140 @@
 import { db, Profiles } from 'astro:db';
 
 export async function seedProfiles(now: Date) {
-  // Create profiles
   await db.insert(Profiles).values([
+    // Expert Profile: Indie Developer
     {
-      // Szymon's owner profile
       id: 1,
-      userId: 1,
-      type: 'owner',
-      createdAt: now,
-      ownedWebsites: [1], // ID TailwindGallery
-      companyName: 'TailwindGallery',
-      position: 'Founder',
-      isVerified: true,
-      featuredOrder: 1,
-    },
-    {
-      // Szymon's expert profile
-      id: 2,
-      userId: 1,
+      userId: 5, // Tom Wilson
       type: 'expert',
       createdAt: now,
-      expertise: ['Astro', 'Tailwind CSS', 'TypeScript'],
-      githubUrl: 'https://github.com/szymon',
-      linkedinUrl: 'https://linkedin.com/in/szymon',
-      isVerified: true,
-      featuredOrder: 1,
-    },
-    {
-      // Jarek's owner profile
-      id: 3,
-      userId: 4,
-      type: 'owner',
-      createdAt: now,
-      ownedWebsites: [2, 3, 4], // Kerlig, Localcan, Webhook.Cool
-      companyName: 'Kerlig',
-      position: 'Founder',
-      isVerified: true,
-      featuredOrder: 1,
-      status: 'active',
-      metaTitle: 'Jarek Ceborski - Founder of Kerlig, Localcan, and Webhook.Cool',
-      metaDescription: 'Designer turned founder building SaaS products that developers love. Creator of Kerlig, Localcan, and Webhook.Cool.',
-    },
-    {
-      // Tom's expert profile
-      id: 4,
-      userId: 5,
-      type: 'expert',
-      createdAt: now,
-      expertise: ['Tailwind CSS', 'React', 'Next.js', 'UI/UX Design'],
-      hourlyRate: 150,
-      availability: 'part-time',
-      githubUrl: 'https://github.com/tomdev',
-      linkedinUrl: 'https://linkedin.com/in/tomdev',
-      showcaseProjects: [
+      expertise: ['tailwind', 'react', 'next.js'],
+      startingPrice: {
+        amount: 2000,
+        currency: 'USD',
+        type: 'starting_at'
+      },
+      services: [
         {
-          title: 'E-commerce Dashboard',
-          description: 'Complete dashboard with analytics, inventory management and order processing',
-          technologies: ['Tailwind CSS', 'React', 'Next.js'],
-          testimonial: {
-            text: "Tom delivered an exceptional dashboard that exceeded our expectations.",
-            author: "Sarah Johnson",
-            role: "CPO at ShopCo"
-          }
-        }
-      ],
-      achievements: [
-        {
-          title: 'Tailwind CSS Certified Developer',
-          description: 'Official certification from Tailwind Labs'
+          title: "Tailwind Migration Expert",
+          description: "I'll help migrate your existing CSS/SCSS to clean, maintainable Tailwind classes",
+          tags: ["migration", "tailwind", "optimization"]
         },
         {
-          title: 'Frontend Expert',
-          description: '5+ years of experience in frontend development'
+          title: "Custom Tailwind Components",
+          description: "Building reusable component libraries with Tailwind CSS",
+          tags: ["components", "design-system"]
+        }
+      ],
+      availability: 'available',
+      showcaseProjects: [
+        {
+          title: "E-commerce Redesign",
+          description: "Complete migration from Bootstrap to Tailwind CSS",
+          url: "https://example.com/case-study-1"
         }
       ],
       testimonials: [
         {
-          text: "Working with Tom was a game-changer for our project. His Tailwind expertise saved us countless hours.",
-          author: "Lisa Chen",
-          role: "Tech Lead at BigCorp",
-          project: "Internal Dashboard Redesign"
+          author: "Sarah Johnson",
+          company: "TechCorp",
+          text: "Tom delivered exceptional work migrating our platform to Tailwind CSS"
         }
       ],
+      githubUrl: "https://github.com/tomwilson",
+      linkedinUrl: "https://linkedin.com/in/tomwilson",
+      isVerified: true,
+      status: 'active'
+    },
+
+    // Expert Profile: Agency
+    {
+      id: 2,
+      userId: 8, // Bakken & Bæck
+      type: 'expert',
+      createdAt: now,
+      companyName: "Bakken & Bæck",
+      expertise: ['tailwind', 'design-systems', 'enterprise'],
+      startingPrice: {
+        type: 'contact_for_pricing'
+      },
+      services: [
+        {
+          title: "Enterprise Tailwind Implementation",
+          description: "Full-scale Tailwind CSS implementation for large organizations",
+          tags: ["enterprise", "migration", "training"]
+        },
+        {
+          title: "Tailwind Design System",
+          description: "Custom design system development with Tailwind CSS",
+          tags: ["design-system", "components"]
+        }
+      ],
+      availability: 'available',
+      showcaseProjects: [
+        {
+          title: "Fortune 500 Design System",
+          description: "Enterprise-wide Tailwind CSS implementation",
+          url: "https://example.com/case-study-2"
+        }
+      ],
+      testimonials: [
+        {
+          author: "John Smith",
+          company: "Enterprise Co",
+          text: "B&B transformed our development workflow with Tailwind"
+        }
+      ],
+      githubUrl: "https://github.com/bakkenbaeck",
+      linkedinUrl: "https://linkedin.com/company/bakkenbaeck",
       isVerified: true,
       featuredOrder: 1,
-      status: 'active',
-      metaTitle: 'Hire Expert Tailwind CSS Developer - Tom Wilson',
-      metaDescription: 'Looking for a Tailwind CSS expert? I specialize in building beautiful, responsive websites with modern frontend technologies. View my portfolio and get in touch.',
+      status: 'active'
     },
+
+    // Expert Profile: Independent Consultant
+    {
+      id: 3,
+      userId: 4, // Jarek
+      type: 'expert',
+      createdAt: now,
+      expertise: ['tailwind', 'performance', 'accessibility'],
+      startingPrice: {
+        amount: 3000,
+        currency: 'USD',
+        type: 'starting_at'
+      },
+      services: [
+        {
+          title: "Tailwind Performance Optimization",
+          description: "Optimize your Tailwind setup for maximum performance",
+          tags: ["performance", "optimization"]
+        },
+        {
+          title: "Accessible Tailwind Components",
+          description: "Building accessible, reusable Tailwind components",
+          tags: ["accessibility", "components"]
+        }
+      ],
+      availability: 'available',
+      showcaseProjects: [
+        {
+          title: "SaaS Platform Optimization",
+          description: "50% reduction in CSS bundle size with Tailwind",
+          url: "https://example.com/case-study-3"
+        }
+      ],
+      testimonials: [
+        {
+          author: "Emily Chen",
+          company: "StartupX",
+          text: "Jarek's Tailwind expertise helped us achieve our performance goals"
+        }
+      ],
+      githubUrl: "https://github.com/jarek",
+      linkedinUrl: "https://linkedin.com/in/jarek",
+      isVerified: true,
+      status: 'active'
+    }
   ]);
 } 

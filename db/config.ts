@@ -82,8 +82,7 @@ const Websites = defineTable({
     description: column.text(), // Website description
     thumbnail: column.text({ optional: true }), // URL to website screenshot/preview
     
-    // Technology stack
-    technologies: column.json(), // Array of technology IDs used on the website
+    // Technology & Showcase
     usesTailwind: column.boolean({ default: false }), // Whether the site uses Tailwind CSS
     showcaseType: column.text({ default: 'portfolio' }), // Type of showcase listing
     
@@ -98,6 +97,8 @@ const Websites = defineTable({
     isBoosted: column.boolean({ default: false }), // Paid promotion
     boostExpiresAt: column.date({ optional: true }), // When the boost expires
     sponsorshipType: column.text({ optional: true }), // Type of sponsorship
+    isPremium: column.boolean({ default: false }), // Premium/paid listing
+    doFollowLink: column.boolean({ default: false }), // SEO backlink status
     
     // Metadata & Statistics
     createdAt: column.date(), // When the website was submitted
@@ -203,7 +204,7 @@ const Profiles = defineTable({
     // Basic profile information
     id: column.number({ primaryKey: true }),
     userId: column.number(), // Reference to Users table
-    type: column.text(), // Profile type
+    type: column.text(), // Profile type (owner/expert/contributor)
     createdAt: column.date(), // When the profile was created
     
     // Website owner specific fields
@@ -213,10 +214,10 @@ const Profiles = defineTable({
     
     // Expert specific fields
     expertise: column.json({ optional: true }), // Array of technology expertise
-    hourlyRate: column.number({ optional: true }), // Consulting rate
+    startingPrice: column.json({ optional: true }), // { amount: number, currency: string, type: string }
+    services: column.json({ optional: true }), // Array of { title, description, tags }
     availability: column.text({ optional: true }), // Current availability status
-    githubUrl: column.text({ optional: true }), // GitHub profile URL
-    linkedinUrl: column.text({ optional: true }), // LinkedIn profile URL
+    hourlyRate: column.number({ optional: true }), // Legacy field - keeping for compatibility
     
     // Portfolio & Achievements
     showcaseProjects: column.json({ optional: true }), // Array of featured projects
@@ -224,6 +225,10 @@ const Profiles = defineTable({
     achievements: column.json({ optional: true }), // Array of certifications/awards
     blogPosts: column.json({ optional: true }), // Array of blog post URLs
     speakingEngagements: column.json({ optional: true }), // Array of speaking events
+    
+    // Social & Contact
+    githubUrl: column.text({ optional: true }), // GitHub profile URL
+    linkedinUrl: column.text({ optional: true }), // LinkedIn profile URL
     
     // SEO Optimization
     metaTitle: column.text({ optional: true }), // Profile-specific SEO title
@@ -237,6 +242,33 @@ const Profiles = defineTable({
   },
 });
 
+/**
+ * Subscriptions table - manages all paid features and access levels
+ */
+const Subscriptions = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    userId: column.number(), // Who purchased
+    websiteId: column.number({ optional: true }), // Related website if any
+    type: column.text(), // boost/feature/premium/backlink
+    status: column.text({ default: 'active' }), // active/expired/cancelled
+    startsAt: column.date(),
+    expiresAt: column.date({ optional: true }),
+    price: column.number(),
+    currency: column.text({ default: 'USD' }),
+    metadata: column.json(), // Flexible storage for feature-specific data
+  },
+});
+
 export default defineDb({
-  tables: { Users, Invites, Websites, Technologies, WebsiteTechnologies, Activities, Profiles },
+  tables: { 
+    Users, 
+    Invites, 
+    Websites, 
+    Technologies, 
+    WebsiteTechnologies, 
+    Activities, 
+    Profiles,
+    Subscriptions, // Add new table
+  },
 });

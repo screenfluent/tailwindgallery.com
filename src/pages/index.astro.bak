@@ -2,7 +2,6 @@
 import { db, Users, Websites, Activities, Technologies, WebsiteTechnologies, Profiles } from 'astro:db';
 import { eq } from 'astro:db';
 
-// Basic interfaces without legacy fields
 interface User {
   id: number;
   username: string;
@@ -104,7 +103,6 @@ interface WebsiteTechnology {
   Technologies: Technology;
 }
 
-// Data fetching
 const websites = await db.select().from(Websites) as Website[];
 const users = await db.select().from(Users) as User[];
 const activities = await db.select().from(Activities) as Activity[];
@@ -365,7 +363,7 @@ function getTechnologies(websiteId: number) {
       </div>
     </div>
 
-    <!-- Contributors Section -->
+    {/* Contributors Section */}
     <section class="py-12 bg-gradient-to-br from-gray-50 to-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -435,6 +433,74 @@ function getTechnologies(websiteId: number) {
           </a>
           <p class="mt-3 text-sm text-gray-500">
             Share your Tailwind projects and become part of our global community
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {/* Hire Tailwind Experts Section */}
+    <section class="py-16 bg-gradient-to-br from-cyan-50 to-white border-y border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">Need Help With Tailwind?</h2>
+          <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+            Hire verified Tailwind experts to help with your project. From quick consultations to full implementations.
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {users.filter(u => u.profileTypes?.includes('expert')).map(expert => (
+            <div class="bg-white rounded-xl shadow-md p-8 border border-gray-100">
+              <div class="flex items-start gap-6">
+                <img 
+                  src={`https://avatar.vercel.sh/${expert.username}`} 
+                  alt={expert.displayName}
+                  class="w-16 h-16 rounded-full bg-gray-200"
+                />
+                <div class="flex-1">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xl font-semibold text-gray-900">
+                      {expert.displayName}
+                    </h3>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                      Verified Expert
+                    </span>
+                  </div>
+                  <p class="text-gray-600 mb-4">{expert.bio}</p>
+                  {expert.location && (
+                    <p class="text-gray-600 mb-4">📍 {expert.location}</p>
+                  )}
+                  <div class="flex flex-wrap gap-2 mb-4">
+                    {expert.expertise?.map(tech => (
+                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4 text-sm text-gray-500">
+                      <span>💰 From ${expert.hourlyRate}/hr</span>
+                      <span>📅 {expert.availability}</span>
+                    </div>
+                    <a 
+                      href={`/experts/${expert.username}`}
+                      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-cyan-600 hover:bg-cyan-700"
+                    >
+                      View Profile
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="mt-12 text-center">
+          <a href="/experts" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-cyan-600 hover:bg-cyan-700">
+            Browse All Experts
+          </a>
+          <p class="mt-3 text-sm text-gray-500">
+            Or <a href="/experts/apply" class="text-cyan-600 hover:text-cyan-700">apply to become a verified expert</a>
           </p>
         </div>
       </div>
