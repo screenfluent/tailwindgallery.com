@@ -31,6 +31,23 @@ const Users = defineTable({
   },
 });
 
+const Invites = defineTable({
+  columns: {
+    // Basic info
+    id: column.number({ primaryKey: true }),
+    code: column.text(), // unikalny kod zaproszenia
+    createdAt: column.date(),
+    expiresAt: column.date(),
+    
+    // Relations
+    createdBy: column.number(), // ID usera który stworzył zaproszenie
+    usedBy: column.number({ optional: true }), // ID usera który użył (null jeśli nie użyte)
+    
+    // Status
+    status: column.text({ default: 'active' }), // active/used/expired
+  },
+});
+
 export default defineDb({
-  tables: { Users },
+  tables: { Users, Invites },
 });
