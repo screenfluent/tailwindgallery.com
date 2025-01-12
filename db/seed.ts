@@ -4,7 +4,7 @@ export default async function () {
   const now = new Date();
   const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
   
-  // Create founder account (superadmin)
+  // Create users with different roles
   await db.insert(Users).values([
     { 
       id: 1,
@@ -15,17 +15,15 @@ export default async function () {
       lastActiveAt: now,
       role: 'superadmin',
       permissions: [
-        'manage_users',
-        'manage_roles',
         'approve_websites',
-        'edit_tech',
-        'manage_invites',
-        'feature_content',
-        'manage_monetization',
+        'edit_websites',
+        'manage_tech',
+        'manage_editors',
+        'manage_claims',
+        'feature_websites',
+        'manage_monetization'
       ],
       isFounder: true,
-      isFeatured: true,
-      invitesCount: 10,
       bio: 'Founder of TailwindGallery',
     },
     // Sample admin account
@@ -39,29 +37,28 @@ export default async function () {
       role: 'admin',
       permissions: [
         'approve_websites',
-        'edit_tech',
-        'manage_invites',
+        'edit_websites',
+        'manage_tech',
+        'manage_editors',
       ],
       invitedBy: 1,
-      invitesCount: 5,
       bio: 'TailwindGallery Admin',
     },
-    // Sample moderator account
+    // Sample editor account
     {
       id: 3,
-      username: 'moderator',
-      email: 'mod@tailwindgallery.com',
-      displayName: 'Moderator',
+      username: 'editor',
+      email: 'editor@tailwindgallery.com',
+      displayName: 'Editor',
       createdAt: now,
       lastActiveAt: now,
-      role: 'moderator',
+      role: 'editor',
       permissions: [
-        'review_websites',
-        'review_tech',
+        'approve_websites',
+        'edit_websites',
       ],
       invitedBy: 1,
-      invitesCount: 2,
-      bio: 'TailwindGallery Moderator',
+      bio: 'TailwindGallery Editor',
     },
   ]);
 

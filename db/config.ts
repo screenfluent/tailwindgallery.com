@@ -15,20 +15,17 @@ const Users = defineTable({
     website: column.text({ optional: true }),
     
     // Role & Status
-    role: column.text({ default: 'contributor' }), // superadmin/admin/moderator/contributor
-    permissions: column.json({ default: [] }), // ['approve_websites', 'edit_tech', etc.]
-    status: column.text({ default: 'active' }), // active/inactive/dormant
+    role: column.text({ default: 'contributor' }), // superadmin/admin/editor/contributor
+    permissions: column.json({ default: [] }), // ['approve_websites', 'edit_websites', etc.]
+    status: column.text({ default: 'active' }), // active/inactive
     invitedBy: column.number({ optional: true }),
     
-    // Activity metrics
+    // Activity
     lastActiveAt: column.date(),
-    invitesCount: column.number({ default: 0 }),
-    totalVotes: column.number({ default: 0 }),
     contributionScore: column.number({ default: 0 }),
     
     // Special flags
     isFounder: column.boolean({ default: false }),
-    isFeatured: column.boolean({ default: false }),
   },
 });
 
