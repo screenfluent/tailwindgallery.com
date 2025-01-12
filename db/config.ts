@@ -48,6 +48,42 @@ const Invites = defineTable({
   },
 });
 
+const Websites = defineTable({
+  columns: {
+    // Basic info
+    id: column.number({ primaryKey: true }),
+    url: column.text(),
+    title: column.text(),
+    description: column.text(),
+    thumbnail: column.text({ optional: true }),
+    
+    // Tech Stack
+    technologies: column.json(), // ['Next.js', 'Tailwind', 'HTMX', etc.]
+    
+    // Claim & Ownership
+    claimedBy: column.number({ optional: true }), // ID usera który przejął kontrolę
+    claimedAt: column.date({ optional: true }),
+    verificationMethod: column.text({ optional: true }), // 'dns', 'meta-tag', etc.
+    isVerified: column.boolean({ default: false }),
+    
+    // Business & Monetization
+    isFeatured: column.boolean({ default: false }),
+    isBoosted: column.boolean({ default: false }),
+    boostExpiresAt: column.date({ optional: true }),
+    sponsorshipType: column.text({ optional: true }), // 'regular', 'exclusive', 'founding'
+    
+    // Metadata & Stats
+    createdAt: column.date(),
+    updatedAt: column.date(),
+    status: column.text({ default: 'pending' }), // pending/approved/rejected
+    submittedBy: column.number(), // ID usera
+    views: column.number({ default: 0 }),
+    upvotes: column.number({ default: 0 }),
+    downvotes: column.number({ default: 0 }),
+    score: column.number({ default: 0 }),
+  },
+});
+
 export default defineDb({
-  tables: { Users, Invites },
+  tables: { Users, Invites, Websites },
 });
