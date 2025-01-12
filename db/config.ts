@@ -121,6 +121,30 @@ const WebsiteTechnologies = defineTable({
   },
 });
 
+const Activities = defineTable({
+  columns: {
+    // Basic info
+    id: column.number({ primaryKey: true }),
+    type: column.text(), // submit_website, vote, add_tech, claim_website, etc.
+    createdAt: column.date(),
+    
+    // Who did it
+    userId: column.number(),
+    
+    // What was affected (tylko jedno z tych będzie używane, reszta null)
+    websiteId: column.number({ optional: true }),
+    technologyId: column.number({ optional: true }),
+    inviteId: column.number({ optional: true }),
+    
+    // Additional data as JSON
+    metadata: column.json(), // np. { vote: 'up', oldStatus: 'pending', newStatus: 'approved' }
+    
+    // Points & Rewards
+    points: column.number({ default: 0 }), // ile punktów za tę aktywność
+    isProcessed: column.boolean({ default: false }), // czy punkty zostały już dodane do usera
+  },
+});
+
 export default defineDb({
-  tables: { Users, Invites, Websites, Technologies, WebsiteTechnologies },
+  tables: { Users, Invites, Websites, Technologies, WebsiteTechnologies, Activities },
 });

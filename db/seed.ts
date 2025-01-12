@@ -1,4 +1,4 @@
-import { db, Users, Invites, Websites, Technologies, WebsiteTechnologies } from 'astro:db';
+import { db, Users, Invites, Websites, Technologies, WebsiteTechnologies, Activities } from 'astro:db';
 
 export default async function () {
   const now = new Date();
@@ -103,5 +103,49 @@ export default async function () {
     { id: 1, websiteId: 1, technologyId: 1, addedAt: now, addedBy: 1 }, // Astro
     { id: 2, websiteId: 1, technologyId: 2, addedAt: now, addedBy: 1 }, // Tailwind
     { id: 3, websiteId: 1, technologyId: 3, addedAt: now, addedBy: 1 }, // TypeScript
+  ]);
+
+  // Create sample activities
+  await db.insert(Activities).values([
+    {
+      id: 1,
+      type: 'submit_website',
+      createdAt: now,
+      userId: 1,
+      websiteId: 1,
+      points: 100,
+      metadata: {
+        action: 'submit',
+        status: 'approved',
+      },
+      isProcessed: true,
+    },
+    {
+      id: 2,
+      type: 'claim_website',
+      createdAt: now,
+      userId: 1,
+      websiteId: 1,
+      points: 50,
+      metadata: {
+        method: 'founder',
+        status: 'verified',
+      },
+      isProcessed: true,
+    },
+    {
+      id: 3,
+      type: 'add_technology',
+      createdAt: now,
+      userId: 1,
+      websiteId: 1,
+      technologyId: 1,
+      points: 10,
+      metadata: {
+        techName: 'Astro',
+        action: 'add',
+      },
+      isProcessed: true,
+    },
   ]);
 }
