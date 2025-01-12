@@ -4,7 +4,7 @@ export default async function () {
   const now = new Date();
   const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
   
-  // Create founder account
+  // Create founder account (superadmin)
   await db.insert(Users).values([
     { 
       id: 1,
@@ -13,11 +13,55 @@ export default async function () {
       displayName: 'Szymon',
       createdAt: now,
       lastActiveAt: now,
-      role: 'admin',
+      role: 'superadmin',
+      permissions: [
+        'manage_users',
+        'manage_roles',
+        'approve_websites',
+        'edit_tech',
+        'manage_invites',
+        'feature_content',
+        'manage_monetization',
+      ],
       isFounder: true,
       isFeatured: true,
       invitesCount: 10,
       bio: 'Founder of TailwindGallery',
+    },
+    // Sample admin account
+    {
+      id: 2,
+      username: 'admin',
+      email: 'admin@tailwindgallery.com',
+      displayName: 'Admin',
+      createdAt: now,
+      lastActiveAt: now,
+      role: 'admin',
+      permissions: [
+        'approve_websites',
+        'edit_tech',
+        'manage_invites',
+      ],
+      invitedBy: 1,
+      invitesCount: 5,
+      bio: 'TailwindGallery Admin',
+    },
+    // Sample moderator account
+    {
+      id: 3,
+      username: 'moderator',
+      email: 'mod@tailwindgallery.com',
+      displayName: 'Moderator',
+      createdAt: now,
+      lastActiveAt: now,
+      role: 'moderator',
+      permissions: [
+        'review_websites',
+        'review_tech',
+      ],
+      invitedBy: 1,
+      invitesCount: 2,
+      bio: 'TailwindGallery Moderator',
     },
   ]);
 

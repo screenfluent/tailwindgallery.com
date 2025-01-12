@@ -15,9 +15,10 @@ const Users = defineTable({
     website: column.text({ optional: true }),
     
     // Role & Status
-    role: column.text({ default: 'contributor' }), // admin/contributor
+    role: column.text({ default: 'contributor' }), // superadmin/admin/moderator/contributor
+    permissions: column.json({ default: [] }), // ['approve_websites', 'edit_tech', etc.]
     status: column.text({ default: 'active' }), // active/inactive/dormant
-    invitedBy: column.number({ optional: true }), // ID of the user who invited them
+    invitedBy: column.number({ optional: true }),
     
     // Activity metrics
     lastActiveAt: column.date(),
@@ -81,6 +82,12 @@ const Websites = defineTable({
     upvotes: column.number({ default: 0 }),
     downvotes: column.number({ default: 0 }),
     score: column.number({ default: 0 }),
+    
+    // Moderation
+    moderatedBy: column.number({ optional: true }), // ID moderatora który sprawdził
+    moderatedAt: column.date({ optional: true }),
+    moderationNote: column.text({ optional: true }), // notatka od moderatora
+    needsSuperAdminReview: column.boolean({ default: false }), // czy wymaga twojego spojrzenia
   },
 });
 
@@ -107,6 +114,12 @@ const Technologies = defineTable({
     addedBy: column.number(), // ID usera
     isApproved: column.boolean({ default: false }),
     usageCount: column.number({ default: 0 }), // ile stron używa tej technologii
+    
+    // Moderation
+    moderatedBy: column.number({ optional: true }),
+    moderatedAt: column.date({ optional: true }),
+    moderationNote: column.text({ optional: true }),
+    needsSuperAdminReview: column.boolean({ default: false }),
   },
 });
 
