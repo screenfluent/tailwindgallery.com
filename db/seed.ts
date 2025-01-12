@@ -1,19 +1,22 @@
 import { db, Users } from 'astro:db';
 
 export default async function () {
-  // Example seeding two user rows
+  const now = new Date();
+  
+  // Create founder account
   await db.insert(Users).values([
     { 
-      id: 1, 
-      username: 'john_smith', 
-      email: 'john@example.com',
-      createdAt: new Date()
-    },
-    { 
-      id: 2, 
-      username: 'jane_doe', 
-      email: 'jane@example.com',
-      createdAt: new Date()
+      id: 1,
+      username: 'szymon',
+      email: 'szymon@tailwindgallery.com', // możesz zmienić na swój email
+      displayName: 'Szymon',
+      createdAt: now,
+      lastActiveAt: now,
+      role: 'admin',
+      isFounder: true,
+      isFeatured: true,
+      invitesCount: 10, // startowa pula zaproszeń
+      bio: 'Founder of TailwindGallery',
     },
   ]);
 }
