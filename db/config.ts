@@ -7,15 +7,16 @@ const Users = defineTable({
   columns: {
     // Basic user information
     id: column.number({ primaryKey: true }),
-    email: column.text(), // User's email address for notifications and login
+    email: column.text({ unique: true }), // User's email address for notifications and login
     username: column.text(), // Used in URL: tailwindgallery.com/@username, must be unique
     createdAt: column.date(), // When the user account was created
     
     // Public profile information
-    displayName: column.text({ optional: true }), // Public name, can be different from username
+    displayName: column.text(), // Public name, can be different from username
     avatar: column.text({ optional: true }), // URL to user's avatar image
     bio: column.text({ optional: true }), // Short biography or description
     website: column.text({ optional: true }), // Personal website URL
+    location: column.text({ optional: true }), // City, Country format
     
     // SEO & Social media profiles
     seoTitle: column.text({ optional: true }), // Custom title for profile page
@@ -30,7 +31,7 @@ const Users = defineTable({
     customSections: column.json({ default: [] }), // Array of custom sections with title and content
     
     // Role & Access management
-    role: column.text({ default: 'contributor' }), // User's primary role in the system
+    role: column.text(), // User's primary role in the system
     permissions: column.json({ default: [] }), // Array of permission keys for granular access control
     status: column.text({ default: 'active' }), // User account status
     invitedBy: column.number({ optional: true }), // User ID of the inviter

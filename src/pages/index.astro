@@ -1,11 +1,356 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import { db, Users, Websites, Activities } from 'astro:db';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  displayName?: string;
+  avatar?: string;
+  bio?: string;
+  role: string;
+  profileTypes: string[];
+  totalSubmissions: number;
+  location?: string;
+}
+
+interface Website {
+  id: number;
+  url: string;
+  title: string;
+  description: string;
+  thumbnail?: string;
+  usesTailwind: boolean;
+  isFeatured: boolean;
+  submittedBy: number;
+  createdAt: Date;
+  technologies: any[];
+  showcaseType: string;
+}
+
+interface Activity {
+  id: number;
+  type: string;
+  createdAt: Date;
+  userId: number;
+  websiteId?: number;
+  technologyId?: number;
+  inviteId?: number;
+  metadata: any;
+  points: number;
+  isProcessed: boolean;
+}
+
+const websites = await db.select().from(Websites) as Website[];
+const users = await db.select().from(Users) as User[];
+const activities = await db.select().from(Activities) as Activity[];
+
+// Filter only Tailwind websites
+const tailwindWebsites = websites.filter(w => w.usesTailwind);
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TailwindGallery - Beautiful Websites Built with Tailwind CSS</title>
+  <meta name="description" content="Discover and get inspired by the best websites built with Tailwind CSS. A curated gallery of beautiful, modern web designs." />
+</head>
+<body class="bg-gray-50">
+  <!-- Hero Section -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Beautiful websites built with Tailwind CSS</h1>
+      <p class="text-xl text-gray-600 max-w-3xl">Get inspired by our curated collection of stunning websites using Tailwind CSS. Learn from the best and showcase your own work.</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Featured Websites -->
+    {tailwindWebsites.some(w => w.isFeatured) && (
+      <div class="mb-16">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">Featured Websites</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {tailwindWebsites.filter(w => w.isFeatured).map(website => (
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-200 hover:scale-[1.02] hover:shadow-xl">
+              {website.thumbnail ? (
+                <img src={website.thumbnail} alt={website.title} class="w-full h-48 object-cover" />
+              ) : (
+                <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                  <span class="text-gray-400 text-lg">No preview available</span>
+                </div>
+              )}
+              <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">{website.title}</h3>
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{website.description}</p>
+                <div class="flex items-center justify-between">
+                  <a 
+                    href={website.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    Visit Website →
+                  </a>
+                  <div class="flex flex-wrap items-center gap-2">
+                    {website.technologies.map(tech => (
+                      <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- All Websites -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">Latest Submissions</h2>
+        <div class="flex gap-2">
+          {/* We'll add filters here later */}
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {tailwindWebsites.filter(w => !w.isFeatured).map(website => (
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-200 hover:scale-[1.02] hover:shadow-xl">
+            {website.thumbnail ? (
+              <img src={website.thumbnail} alt={website.title} class="w-full h-48 object-cover" />
+            ) : (
+              <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                <span class="text-gray-400 text-lg">No preview available</span>
+              </div>
+            )}
+            <div class="p-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-2">{website.title}</h3>
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">{website.description}</p>
+              <div class="flex items-center justify-between">
+                <a 
+                  href={website.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Visit Website →
+                </a>
+                <div class="flex flex-wrap items-center gap-2">
+                  {website.technologies.map(tech => (
+                    <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">Latest Activity</h2>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-200">
+        {activities.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, 10).map(activity => {
+          const user = users.find(u => u.id === activity.userId);
+          const website = activity.websiteId ? websites.find(w => w.id === activity.websiteId) : null;
+          
+          return (
+            <div class="p-4 flex items-center gap-4">
+              <img 
+                src={`https://avatar.vercel.sh/${user?.username}`}
+                alt={user?.displayName}
+                class="w-10 h-10 rounded-full bg-gray-200"
+              />
+              <div class="flex-1">
+                <p class="text-gray-900">
+                  <span class="font-medium">{user?.displayName}</span>
+                  {activity.type === 'website_submission' && (
+                    <span> added <a href={website?.url} target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:text-cyan-800">{activity.metadata.title}</a> to the gallery</span>
+                  )}
+                  {activity.type === 'website_claimed' && (
+                    <span> from <a href={activity.metadata.companyUrl} target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:text-cyan-800">{activity.metadata.companyName}</a> claimed their website</span>
+                  )}
+                  {activity.type === 'expert_joined' && (
+                    <span> from <a href={activity.metadata.companyUrl} target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:text-cyan-800">{activity.metadata.companyName}</a> joined as a Tailwind expert</span>
+                  )}
+                  {activity.type === 'technology_added' && (
+                    <span> added <span class="font-medium">{activity.metadata.name}</span> to technology stack</span>
+                  )}
+                  {activity.type === 'invite_sent' && (
+                    <span> invited a new contributor</span>
+                  )}
+                </p>
+                <p class="text-sm text-gray-500 flex items-center gap-3">
+                  <span>{new Date(activity.createdAt).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</span>
+                  {activity.points > 0 && (
+                    <span class="text-cyan-600">+{activity.points} points</span>
+                  )}
+                  {user?.location && (
+                    <span class="text-gray-400">📍 {user.location}</span>
+                  )}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    {/* Contributors Section */}
+    <section class="py-12 bg-gradient-to-br from-gray-50 to-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-3 flex items-center justify-center gap-2">
+            <span>🌍</span> 
+            Global Community of Tailwind Enthusiasts
+          </h2>
+          <p class="text-lg text-gray-600">
+            Join contributors from around the world sharing their Tailwind expertise
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {users
+            .filter(u => u.totalSubmissions > 0 || u.role === 'admin' || u.role === 'editor')
+            .map(contributor => (
+              <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-start space-x-4">
+                  <img 
+                    src={`https://avatar.vercel.sh/${contributor.username}`}
+                    alt={contributor.displayName}
+                    class="w-12 h-12 rounded-full bg-gray-200"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between">
+                      <div>
+                        <h4 class="text-base font-medium text-gray-900">
+                          {contributor.displayName}
+                        </h4>
+                        {contributor.location && (
+                          <p class="mt-1 text-sm text-gray-500 flex items-center gap-1">
+                            📍 {contributor.location}
+                          </p>
+                        )}
+                      </div>
+                      {contributor.totalSubmissions > 0 && (
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                          {contributor.totalSubmissions} sites
+                        </span>
+                      )}
+                    </div>
+                    {contributor.bio && (
+                      <p class="mt-2 text-sm text-gray-600 line-clamp-2">{contributor.bio}</p>
+                    )}
+                    {contributor.role === 'admin' && (
+                      <span class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        Admin
+                      </span>
+                    )}
+                    {contributor.role === 'editor' && (
+                      <span class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Editor
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+
+        <div class="mt-12 text-center">
+          <a 
+            href="/submit" 
+            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-cyan-600 hover:bg-cyan-700 transition-colors"
+          >
+            Join Our Community
+          </a>
+          <p class="mt-3 text-sm text-gray-500">
+            Share your Tailwind projects and become part of our global community
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {/* Hire Tailwind Experts Section */}
+    <section class="py-16 bg-gradient-to-br from-cyan-50 to-white border-y border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">Need Help With Tailwind?</h2>
+          <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+            Hire verified Tailwind experts to help with your project. From quick consultations to full implementations.
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {users.filter(u => u.profileTypes?.includes('expert')).map(expert => (
+            <div class="bg-white rounded-xl shadow-md p-8 border border-gray-100">
+              <div class="flex items-start gap-6">
+                <img 
+                  src={`https://avatar.vercel.sh/${expert.username}`} 
+                  alt={expert.displayName}
+                  class="w-16 h-16 rounded-full bg-gray-200"
+                />
+                <div class="flex-1">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xl font-semibold text-gray-900">
+                      {expert.displayName}
+                    </h3>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                      Verified Expert
+                    </span>
+                  </div>
+                  <p class="text-gray-600 mb-4">{expert.bio}</p>
+                  {expert.location && (
+                    <p class="text-gray-600 mb-4">📍 {expert.location}</p>
+                  )}
+                  <div class="flex flex-wrap gap-2 mb-4">
+                    {expert.expertise?.map(tech => (
+                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4 text-sm text-gray-500">
+                      <span>💰 From ${expert.hourlyRate}/hr</span>
+                      <span>📅 {expert.availability}</span>
+                    </div>
+                    <a 
+                      href={`/experts/${expert.username}`}
+                      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-cyan-600 hover:bg-cyan-700"
+                    >
+                      View Profile
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="mt-12 text-center">
+          <a href="/experts" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-cyan-600 hover:bg-cyan-700">
+            Browse All Experts
+          </a>
+          <p class="mt-3 text-sm text-gray-500">
+            Or <a href="/experts/apply" class="text-cyan-600 hover:text-cyan-700">apply to become a verified expert</a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
