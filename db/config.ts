@@ -1,6 +1,14 @@
-import { defineDb } from 'astro:db';
+import { defineDb, defineTable, column } from 'astro:db';
 
-// https://astro.build/db/config
+const Users = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    username: column.text(),
+    email: column.text(),
+    createdAt: column.date(),
+  },
+});
+
 export default defineDb({
-  tables: {}
+  tables: { Users },
 });
