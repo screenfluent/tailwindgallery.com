@@ -27,6 +27,23 @@ export default async function () {
       isFounder: true,
       bio: 'Founder of TailwindGallery',
     },
+    // Sample expert contributor
+    {
+      id: 4,
+      username: 'jarekceborski',
+      email: 'jarek@ceborski.com',
+      displayName: 'Jarek',
+      createdAt: now,
+      lastActiveAt: now,
+      role: 'contributor',
+      profileTypes: ['owner', 'expert'],
+      bio: 'Designer turned Founder',
+      website: 'jarekceborski.com',
+      twitterHandle: 'jarekceborski',
+      seoTitle: 'Jarek Ceborski - Designer & Startup Founder',
+      seoDescription: 'Designer turned founder of Kerlig, Localcan, and Webhook.Cool. Expert in product design and SaaS development.',
+      invitedBy: 1,
+    },
     // Sample admin account
     {
       id: 2,
@@ -216,6 +233,99 @@ export default async function () {
       linkedinUrl: 'https://linkedin.com/in/szymon', // zmień na swój
       isVerified: true,
       featuredOrder: 1,
+    },
+  ]);
+
+  // Create Jarek's websites
+  await db.insert(Websites).values([
+    {
+      id: 2,
+      url: 'https://kerlig.com',
+      title: 'Kerlig',
+      description: 'AI writing assistant for modern teams',
+      technologies: [],
+      createdAt: now,
+      updatedAt: now,
+      submittedBy: 4,
+      status: 'approved',
+      isVerified: true,
+      claimedBy: 4,
+      claimedAt: now,
+      verificationMethod: 'dns',
+      isFeatured: true,
+    },
+    {
+      id: 3,
+      url: 'https://localcan.com',
+      title: 'Localcan',
+      description: '#1 Ngrok alternative for developers',
+      technologies: [],
+      createdAt: now,
+      updatedAt: now,
+      submittedBy: 4,
+      status: 'approved',
+      isVerified: true,
+      claimedBy: 4,
+      claimedAt: now,
+      verificationMethod: 'dns',
+      isFeatured: true,
+    },
+    {
+      id: 4,
+      url: 'https://webhook.cool',
+      title: 'Webhook.Cool',
+      description: 'Free webhook tester for developers',
+      technologies: [],
+      createdAt: now,
+      updatedAt: now,
+      submittedBy: 4,
+      status: 'approved',
+      isVerified: true,
+      claimedBy: 4,
+      claimedAt: now,
+      verificationMethod: 'dns',
+    },
+  ]);
+
+  // Create Jarek's expert profile
+  await db.insert(Profiles).values([
+    {
+      id: 3,
+      userId: 4,
+      type: 'expert',
+      createdAt: now,
+      expertise: ['Product Design', 'SaaS', 'Startup Development'],
+      githubUrl: 'https://github.com/jarekceborski',
+      linkedinUrl: 'https://linkedin.com/in/jarekceborski',
+      showcaseProjects: [
+        {
+          title: 'Kerlig',
+          description: 'AI writing assistant built with modern tech stack',
+          url: 'https://kerlig.com',
+          technologies: ['AI', 'SaaS']
+        },
+        {
+          title: 'Localcan',
+          description: 'Modern alternative to Ngrok for local development',
+          url: 'https://localcan.com',
+          technologies: ['Developer Tools']
+        },
+        {
+          title: 'Webhook.Cool',
+          description: 'Simple and free webhook testing tool',
+          url: 'https://webhook.cool',
+          technologies: ['Developer Tools']
+        }
+      ],
+      achievements: [
+        {
+          title: 'Founded Multiple SaaS Products',
+          description: 'Successfully launched Kerlig, Localcan, and Webhook.Cool'
+        }
+      ],
+      isVerified: true,
+      featuredOrder: 1,
+      status: 'active',
     },
   ]);
 }
