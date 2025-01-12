@@ -27,7 +27,7 @@ export default async function () {
       isFounder: true,
       bio: 'Founder of TailwindGallery',
     },
-    // Sample expert contributor
+    // Sample website owner (not an expert, owns non-Tailwind websites)
     {
       id: 4,
       username: 'jarekceborski',
@@ -36,7 +36,7 @@ export default async function () {
       createdAt: now,
       lastActiveAt: now,
       role: 'contributor',
-      profileTypes: ['owner', 'expert'],
+      profileTypes: ['owner'],
       bio: 'Designer turned Founder',
       website: 'jarekceborski.com',
       twitterHandle: 'jarekceborski',
@@ -77,6 +77,23 @@ export default async function () {
       ],
       invitedBy: 1,
       bio: 'TailwindGallery Editor',
+    },
+    // Sample Tailwind expert
+    {
+      id: 5,
+      username: 'tomdev',
+      email: 'tom@tailwindexpert.dev',
+      displayName: 'Tom Wilson',
+      createdAt: now,
+      lastActiveAt: now,
+      role: 'contributor',
+      profileTypes: ['expert'],
+      bio: 'Tailwind CSS Expert & Frontend Developer',
+      website: 'tailwindexpert.dev',
+      twitterHandle: 'tomtailwinddev',
+      seoTitle: 'Tom Wilson - Tailwind CSS Expert & Frontend Developer',
+      seoDescription: 'Specialized in building beautiful, responsive websites with Tailwind CSS. 5+ years of experience in frontend development and UI/UX design.',
+      invitedBy: 1,
     },
   ]);
 
@@ -138,7 +155,7 @@ export default async function () {
     },
   ]);
 
-  // Create a sample website
+  // Create a sample website (TailwindGallery)
   await db.insert(Websites).values([
     {
       id: 1,
@@ -146,6 +163,8 @@ export default async function () {
       title: 'Tailwind Gallery',
       description: 'A curated collection of beautiful websites built with Tailwind CSS',
       technologies: [],
+      usesTailwind: true,
+      showcaseType: 'tailwind',
       createdAt: now,
       updatedAt: now,
       submittedBy: 1,
@@ -236,7 +255,7 @@ export default async function () {
     },
   ]);
 
-  // Create Jarek's websites
+  // Create Jarek's websites (portfolio only, no Tailwind)
   await db.insert(Websites).values([
     {
       id: 2,
@@ -244,6 +263,8 @@ export default async function () {
       title: 'Kerlig',
       description: 'AI writing assistant for modern teams',
       technologies: [],
+      usesTailwind: false,
+      showcaseType: 'portfolio',
       createdAt: now,
       updatedAt: now,
       submittedBy: 4,
@@ -260,6 +281,8 @@ export default async function () {
       title: 'Localcan',
       description: '#1 Ngrok alternative for developers',
       technologies: [],
+      usesTailwind: false,
+      showcaseType: 'portfolio',
       createdAt: now,
       updatedAt: now,
       submittedBy: 4,
@@ -276,6 +299,8 @@ export default async function () {
       title: 'Webhook.Cool',
       description: 'Free webhook tester for developers',
       technologies: [],
+      usesTailwind: false,
+      showcaseType: 'portfolio',
       createdAt: now,
       updatedAt: now,
       submittedBy: 4,
@@ -284,48 +309,127 @@ export default async function () {
       claimedBy: 4,
       claimedAt: now,
       verificationMethod: 'dns',
+      isFeatured: true,
     },
   ]);
 
-  // Create Jarek's expert profile
+  // Create Jarek's owner profile (not expert, since he doesn't offer Tailwind services)
   await db.insert(Profiles).values([
     {
       id: 3,
       userId: 4,
+      type: 'owner',
+      createdAt: now,
+      ownedWebsites: [2, 3, 4], // Kerlig, Localcan, Webhook.Cool
+      companyName: 'Kerlig',
+      position: 'Founder',
+      isVerified: true,
+      featuredOrder: 1,
+      status: 'active',
+      metaTitle: 'Jarek Ceborski - Founder of Kerlig, Localcan, and Webhook.Cool',
+      metaDescription: 'Designer turned founder building SaaS products that developers love. Creator of Kerlig, Localcan, and Webhook.Cool.',
+    },
+  ]);
+
+  // Create Tom's portfolio websites (all using Tailwind)
+  await db.insert(Websites).values([
+    {
+      id: 5,
+      url: 'https://acme-saas.com',
+      title: 'Acme SaaS Platform',
+      description: 'Modern SaaS dashboard built with Tailwind CSS',
+      technologies: [],
+      usesTailwind: true,
+      showcaseType: 'tailwind',
+      createdAt: now,
+      updatedAt: now,
+      submittedBy: 5,
+      status: 'approved',
+      isVerified: true,
+      claimedBy: 5,
+      claimedAt: now,
+      verificationMethod: 'dns',
+      isFeatured: true,
+    },
+    {
+      id: 6,
+      url: 'https://startup-landing.com',
+      title: 'StartupLanding Template',
+      description: 'High-converting landing page template built with Tailwind',
+      technologies: [],
+      usesTailwind: true,
+      showcaseType: 'tailwind',
+      createdAt: now,
+      updatedAt: now,
+      submittedBy: 5,
+      status: 'approved',
+      isVerified: true,
+      claimedBy: 5,
+      claimedAt: now,
+      verificationMethod: 'dns',
+      isFeatured: true,
+    },
+  ]);
+
+  // Create Tom's expert profile
+  await db.insert(Profiles).values([
+    {
+      id: 4,
+      userId: 5,
       type: 'expert',
       createdAt: now,
-      expertise: ['Product Design', 'SaaS', 'Startup Development'],
-      githubUrl: 'https://github.com/jarekceborski',
-      linkedinUrl: 'https://linkedin.com/in/jarekceborski',
+      expertise: ['Tailwind CSS', 'React', 'Next.js', 'UI/UX Design'],
+      hourlyRate: 150, // USD per hour
+      availability: 'part-time', // Currently available for projects
+      githubUrl: 'https://github.com/tomdev',
+      linkedinUrl: 'https://linkedin.com/in/tomdev',
       showcaseProjects: [
         {
-          title: 'Kerlig',
-          description: 'AI writing assistant built with modern tech stack',
-          url: 'https://kerlig.com',
-          technologies: ['AI', 'SaaS']
+          title: 'Acme SaaS Platform',
+          description: 'Complete SaaS platform with dashboard, settings, and user management',
+          url: 'https://acme-saas.com',
+          technologies: ['Tailwind CSS', 'React', 'Next.js'],
+          testimonial: {
+            text: "Tom delivered an exceptional dashboard that our users love. His Tailwind expertise made the UI both beautiful and performant.",
+            author: "Sarah Johnson",
+            role: "CPO at Acme"
+          }
         },
         {
-          title: 'Localcan',
-          description: 'Modern alternative to Ngrok for local development',
-          url: 'https://localcan.com',
-          technologies: ['Developer Tools']
-        },
-        {
-          title: 'Webhook.Cool',
-          description: 'Simple and free webhook testing tool',
-          url: 'https://webhook.cool',
-          technologies: ['Developer Tools']
+          title: 'StartupLanding Template',
+          description: 'High-converting landing page with advanced Tailwind animations',
+          url: 'https://startup-landing.com',
+          technologies: ['Tailwind CSS', 'Alpine.js'],
+          testimonial: {
+            text: "The landing page Tom built helped us increase conversions by 64%. His attention to detail is amazing.",
+            author: "Mike Smith",
+            role: "Founder at StartupCo"
+          }
         }
       ],
       achievements: [
         {
-          title: 'Founded Multiple SaaS Products',
-          description: 'Successfully launched Kerlig, Localcan, and Webhook.Cool'
+          title: 'Tailwind CSS Certified Developer',
+          description: 'Official certification from Tailwind Labs'
+        },
+        {
+          title: 'Frontend Expert',
+          description: '5+ years of experience in frontend development'
+        }
+      ],
+      testimonials: [
+        {
+          text: "Working with Tom was a game-changer for our project. His Tailwind expertise saved us countless hours.",
+          author: "Lisa Chen",
+          role: "Tech Lead at BigCorp",
+          project: "Internal Dashboard Redesign"
         }
       ],
       isVerified: true,
       featuredOrder: 1,
       status: 'active',
+      metaTitle: 'Hire Expert Tailwind CSS Developer - Tom Wilson',
+      metaDescription: 'Looking for a Tailwind CSS expert? I specialize in building beautiful, responsive websites with modern frontend technologies. View my portfolio and get in touch.',
     },
   ]);
 }
