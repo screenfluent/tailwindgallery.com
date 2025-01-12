@@ -1,51 +1,12 @@
 ---
-import { db, Users, Websites, Activities, Technologies, WebsiteTechnologies, Profiles } from 'astro:db';
-import { eq } from 'astro:db';
+import { db, Users, Websites, Activities } from 'astro:db';
 
-// Basic interfaces without legacy fields
+// Basic interfaces
 interface User {
   id: number;
   username: string;
-  email: string;
   displayName?: string;
   avatar?: string;
-  bio?: string;
-  role: string;
-  profileTypes: string[];
-  totalSubmissions: number;
-  location?: string;
-}
-
-interface Profile {
-  id: number;
-  userId: number;
-  type: string;
-  expertise?: string[];
-  startingPrice?: {
-    amount: number;
-    currency: string;
-    type: string;
-  };
-  services?: {
-    title: string;
-    description: string;
-    tags: string[];
-  }[];
-  availability?: string;
-  showcaseProjects?: {
-    title: string;
-    description: string;
-    url: string;
-  }[];
-  testimonials?: {
-    author: string;
-    company: string;
-    text: string;
-  }[];
-  githubUrl?: string;
-  linkedinUrl?: string;
-  isVerified: boolean;
-  status: string;
 }
 
 interface Website {
@@ -55,12 +16,8 @@ interface Website {
   description: string;
   thumbnail?: string;
   usesTailwind: boolean;
-  isFeatured: boolean;
   submittedBy: number;
   createdAt: Date;
-  showcaseType: string;
-  claimedBy?: number;
-  isVerified: boolean;
 }
 
 interface Activity {
@@ -69,66 +26,16 @@ interface Activity {
   createdAt: Date;
   userId: number;
   websiteId?: number;
-  technologyId?: number;
-  inviteId?: number;
   metadata: any;
-  points: number;
-  isProcessed: boolean;
-}
-
-interface Technology {
-  id: number;
-  name: string;
-  slug: string;
-  category: string;
-  type: string;
-  description?: string;
-  websiteUrl?: string;
-  docsUrl?: string;
-  githubUrl?: string;
-  icon?: string;
-  createdAt: Date;
-  addedBy: number;
-  isApproved: boolean;
-  usageCount: number;
-}
-
-interface WebsiteTechnology {
-  WebsiteTechnologies: {
-    id: number;
-    websiteId: number;
-    technologyId: number;
-    addedAt: Date;
-    addedBy: number;
-  };
-  Technologies: Technology;
 }
 
 // Data fetching
 const websites = await db.select().from(Websites) as Website[];
 const users = await db.select().from(Users) as User[];
 const activities = await db.select().from(Activities) as Activity[];
-const experts = await db
-  .select()
-  .from(Profiles)
-  .all() as Profile[];
-
-// Filter experts in JavaScript
-const activeExperts = experts.filter(e => e.type === 'expert' && e.status === 'active');
-
-// Get technologies for all websites
-const websiteTechnologies = await db
-  .select()
-  .from(WebsiteTechnologies)
-  .leftJoin(Technologies, eq(Technologies.id, WebsiteTechnologies.technologyId)) as WebsiteTechnology[];
 
 // Filter only Tailwind websites
 const tailwindWebsites = websites.filter(w => w.usesTailwind);
-
-// Helper function to get technologies for a website
-function getTechnologies(websiteId: number) {
-  return websiteTechnologies.filter(wt => wt.WebsiteTechnologies.websiteId === websiteId);
-}
 ---
 
 <html lang="en">
@@ -143,302 +50,40 @@ function getTechnologies(websiteId: number) {
   <div class="bg-white border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Beautiful websites built with Tailwind CSS</h1>
-      <p class="text-xl text-gray-600 max-w-3xl">Get inspired by our curated collection of stunning websites using Tailwind CSS. Learn from the best and showcase your own work.</p>
+      <p class="text-xl text-gray-600 max-w-3xl">Get inspired by our curated collection of stunning websites using Tailwind CSS.</p>
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <!-- Featured Websites -->
-    {tailwindWebsites.some(w => w.isFeatured) && (
-      <div class="mb-16">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-6">Featured Websites</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {tailwindWebsites.filter(w => w.isFeatured).map(website => (
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-200 hover:scale-[1.02] hover:shadow-xl">
-              {website.thumbnail ? (
-                <img src={website.thumbnail} alt={website.title} class="w-full h-48 object-cover" />
-              ) : (
-                <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                  <span class="text-gray-400 text-lg">No preview available</span>
-                </div>
-              )}
-              <div class="p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-2">{website.title}</h3>
-                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{website.description}</p>
-                <div class="flex items-center justify-between">
-                  <a 
-                    href={website.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    Visit Website →
-                  </a>
-                  <div class="flex flex-wrap items-center gap-2">
-                    {website.claimedBy && getTechnologies(website.id).map(tech => (
-                      <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
-                        {tech.Technologies.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+    <!-- Websites Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {tailwindWebsites.map(website => (
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          {website.thumbnail ? (
+            <img src={website.thumbnail} alt={website.title} class="w-full h-48 object-cover" />
+          ) : (
+            <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <span class="text-gray-400 text-lg">No preview available</span>
             </div>
-          ))}
-        </div>
-      </div>
-    )}
-
-    <!-- All Websites -->
-    <div class="mb-16">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-semibold text-gray-900">Latest Submissions</h2>
-        <div class="flex gap-2">
-          {/* We'll add filters here later */}
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {tailwindWebsites.filter(w => !w.isFeatured).map(website => (
-          <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-200 hover:scale-[1.02] hover:shadow-xl">
-            {website.thumbnail ? (
-              <img src={website.thumbnail} alt={website.title} class="w-full h-48 object-cover" />
-            ) : (
-              <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                <span class="text-gray-400 text-lg">No preview available</span>
-              </div>
-            )}
-            <div class="p-6">
-              <h3 class="text-lg font-medium text-gray-900 mb-2">{website.title}</h3>
-              <p class="text-gray-600 text-sm mb-4 line-clamp-2">{website.description}</p>
-              <div class="flex items-center justify-between">
-                <a 
-                  href={website.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                >
-                  Visit Website →
-                </a>
-                <div class="flex flex-wrap items-center gap-2">
-                  {website.claimedBy && getTechnologies(website.id).map(tech => (
-                    <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
-                      {tech.Technologies.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
+          )}
+          <div class="p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">{website.title}</h3>
+            <p class="text-gray-600 text-sm mb-4 line-clamp-2">{website.description}</p>
+            <div class="flex items-center justify-between">
+              <a 
+                href={website.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                Visit Website →
+              </a>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
-
-    <!-- Experts Section -->
-    {activeExperts.length > 0 && (
-      <div class="mb-16">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-semibold text-gray-900">Tailwind CSS Experts</h2>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {activeExperts.map(expert => {
-            const user = users.find(u => u.id === expert.userId);
-            return (
-              <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div class="p-6">
-                  <div class="flex items-center gap-4 mb-4">
-                    <img 
-                      src={`https://avatar.vercel.sh/${user?.username}`}
-                      alt={user?.displayName}
-                      class="w-12 h-12 rounded-full bg-gray-200"
-                    />
-                    <div>
-                      <h3 class="text-lg font-medium text-gray-900">{user?.displayName}</h3>
-                      {expert.startingPrice?.type === 'starting_at' ? (
-                        <p class="text-sm text-gray-600">Starting at ${expert.startingPrice.amount}</p>
-                      ) : (
-                        <p class="text-sm text-gray-600">Contact for pricing</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {expert.services && expert.services.length > 0 && (
-                    <div class="mb-4">
-                      <h4 class="text-sm font-medium text-gray-900 mb-2">Services</h4>
-                      {expert.services.map(service => (
-                        <div class="mb-3">
-                          <p class="text-sm font-medium text-gray-800">{service.title}</p>
-                          <p class="text-sm text-gray-600">{service.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {expert.testimonials && expert.testimonials.length > 0 && (
-                    <div class="mb-4">
-                      <h4 class="text-sm font-medium text-gray-900 mb-2">Client Testimonials</h4>
-                      <div class="bg-gray-50 rounded-lg p-3">
-                        <p class="text-sm text-gray-600 italic">"{expert.testimonials[0].text}"</p>
-                        <p class="text-sm text-gray-800 mt-2">— {expert.testimonials[0].author}, {expert.testimonials[0].company}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div class="flex items-center gap-3">
-                    {expert.githubUrl && (
-                      <a href={expert.githubUrl} target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-gray-900">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
-                        </svg>
-                      </a>
-                    )}
-                    {expert.linkedinUrl && (
-                      <a href={expert.linkedinUrl} target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-gray-900">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                        </svg>
-                      </a>
-                    )}
-                    {expert.availability === 'available' && (
-                      <span class="ml-auto text-sm text-green-600 font-medium">Available for work</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    )}
-
-    <!-- Activity Feed -->
-    <div class="mb-16">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-semibold text-gray-900">Latest Activity</h2>
-      </div>
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-200">
-        {activities.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, 10).map(activity => {
-          const user = users.find(u => u.id === activity.userId);
-          const website = activity.websiteId ? websites.find(w => w.id === activity.websiteId) : null;
-          
-          return (
-            <div class="p-4 flex items-center gap-4">
-              <img 
-                src={`https://avatar.vercel.sh/${user?.username}`}
-                alt={user?.displayName}
-                class="w-10 h-10 rounded-full bg-gray-200"
-              />
-              <div class="flex-1">
-                <p class="text-gray-900">
-                  <span class="font-medium">{user?.displayName}</span>
-                  {activity.type === 'website_submission' && (
-                    <span> added <a href={website?.url} target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:text-cyan-800">{activity.metadata.title}</a> to the gallery</span>
-                  )}
-                  {activity.type === 'website_claimed' && (
-                    <span> from <a href={activity.metadata.companyUrl} target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:text-cyan-800">{activity.metadata.companyName}</a> claimed their website</span>
-                  )}
-                  {activity.type === 'expert_joined' && (
-                    <span> from <a href={activity.metadata.companyUrl} target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:text-cyan-800">{activity.metadata.companyName}</a> joined as a Tailwind expert</span>
-                  )}
-                  {activity.type === 'technology_added' && (
-                    <span> added <span class="font-medium">{activity.metadata.name}</span> to technology stack</span>
-                  )}
-                  {activity.type === 'invite_sent' && (
-                    <span> invited a new contributor</span>
-                  )}
-                </p>
-                <p class="text-sm text-gray-500 flex items-center gap-3">
-                  <span>{new Date(activity.createdAt).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}</span>
-                  {user?.location && (
-                    <span class="text-gray-400">📍 {user.location}</span>
-                  )}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-
-    <!-- Contributors Section -->
-    <section class="py-12 bg-gradient-to-br from-gray-50 to-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl font-bold text-gray-900 mb-3 flex items-center justify-center gap-2">
-            <span>🌍</span> 
-            Global Community of Tailwind Enthusiasts
-          </h2>
-          <p class="text-lg text-gray-600">
-            Join contributors from around the world sharing their Tailwind expertise
-          </p>
-        </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {users
-            .filter(u => u.totalSubmissions > 0 || u.role === 'admin' || u.role === 'editor')
-            .map(contributor => (
-              <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
-                <div class="flex items-start space-x-4">
-                  <img 
-                    src={`https://avatar.vercel.sh/${contributor.username}`}
-                    alt={contributor.displayName}
-                    class="w-12 h-12 rounded-full bg-gray-200"
-                  />
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start justify-between">
-                      <div>
-                        <h4 class="text-base font-medium text-gray-900">
-                          {contributor.displayName}
-                        </h4>
-                        {contributor.location && (
-                          <p class="mt-1 text-sm text-gray-500 flex items-center gap-1">
-                            📍 {contributor.location}
-                          </p>
-                        )}
-                      </div>
-                      {contributor.totalSubmissions > 0 && (
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
-                          {contributor.totalSubmissions} sites
-                        </span>
-                      )}
-                    </div>
-                    {contributor.bio && (
-                      <p class="mt-2 text-sm text-gray-600 line-clamp-2">{contributor.bio}</p>
-                    )}
-                    {contributor.role === 'admin' && (
-                      <span class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        Admin
-                      </span>
-                    )}
-                    {contributor.role === 'editor' && (
-                      <span class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        Editor
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-        </div>
-
-        <div class="mt-12 text-center">
-          <a 
-            href="/submit" 
-            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-cyan-600 hover:bg-cyan-700 transition-colors"
-          >
-            Join Our Community
-          </a>
-          <p class="mt-3 text-sm text-gray-500">
-            Share your Tailwind projects and become part of our global community
-          </p>
-        </div>
-      </div>
-    </section>
   </div>
 </body>
-</html>
+</html> 

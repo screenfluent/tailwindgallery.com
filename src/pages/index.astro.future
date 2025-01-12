@@ -1,0 +1,1224 @@
+---
+import { db, Users, Websites, Activities, Technologies, WebsiteTechnologies, Profiles } from 'astro:db';
+import { eq } from 'astro:db';
+
+// Basic interfaces without legacy fields
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  displayName?: string;
+  avatar?: string;
+  bio?: string;
+  role: string;
+  profileTypes: string[];
+  totalSubmissions: number;
+  location?: string;
+}
+
+interface Profile {
+  id: number;
+  userId: number;
+  type: string;
+  expertise?: string[];
+  startingPrice?: {
+    amount: number;
+    currency: string;
+    type: string;
+  };
+  services?: {
+    title: string;
+    description: string;
+    tags: string[];
+  }[];
+  availability?: string;
+  showcaseProjects?: {
+    title: string;
+    description: string;
+    url: string;
+  }[];
+  testimonials?: {
+    author: string;
+    company: string;
+    text: string;
+  }[];
+  githubUrl?: string;
+  linkedinUrl?: string;
+  isVerified: boolean;
+  status: string;
+}
+
+interface Website {
+  id: number;
+  url: string;
+  title: string;
+  description: string;
+  thumbnail?: string;
+  usesTailwind: boolean;
+  isFeatured: boolean;
+  submittedBy: number;
+  createdAt: Date;
+  showcaseType: string;
+  claimedBy?: number;
+  isVerified: boolean;
+}
+
+interface Activity {
+  id: number;
+  type: string;
+  createdAt: Date;
+  userId: number;
+  websiteId?: number;
+  technologyId?: number;
+  inviteId?: number;
+  metadata: any;
+  points: number;
+  isProcessed: boolean;
+}
+
+interface Technology {
+  id: number;
+  name: string;
+  slug: string;
+  category: string;
+  type: string;
+  description?: string;
+  websiteUrl?: string;
+  docsUrl?: string;
+  githubUrl?: string;
+  icon?: string;
+  createdAt: Date;
+  addedBy: number;
+  isApproved: boolean;
+  usageCount: number;
+}
+
+interface WebsiteTechnology {
+  WebsiteTechnologies: {
+    id: number;
+    websiteId: number;
+    technologyId: number;
+    addedAt: Date;
+    addedBy: number;
+  };
+  Technologies: Technology;
+}
+
+// Data fetching
+const websites = await db.select().from(Websites) as Website[];
+const users = await db.select().from(Users) as User[];
+const activities = await db.select().from(Activities) as Activity[];
+const experts = await db
+  .select()
+  .from(Profiles)
+  .all() as Profile[];
+
+// Filter experts in JavaScript
+const activeExperts = experts.filter(e => e.type === 'expert' && e.status === 'active');
+
+// Get technologies for all websites
+const websiteTechnologies = await db
+  .select()
+  .from(WebsiteTechnologies)
+  .leftJoin(Technologies, eq(Technologies.id, WebsiteTechnologies.technologyId)) as WebsiteTechnology[];
+
+// Filter only Tailwind websites
+const tailwindWebsites = websites.filter(w => w.usesTailwind);
+
+// Helper function to get technologies for a website
+function getTechnologies(websiteId: number) {
+  return websiteTechnologies.filter(wt => wt.WebsiteTechnologies.websiteId === websiteId);
+}
+---
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TailwindGallery - Beautiful Websites Built with Tailwind CSS</title>
+  <meta name="description" content="Discover and get inspired by the best websites built with Tailwind CSS. A curated gallery of beautiful, modern web designs." />
+</head>
+<body class="bg-gray-50">
+  <!-- Hero Section -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Beautiful websites built with Tailwind CSS</h1>
+      <p class="text-xl text-gray-600 max-w-3xl">Get inspired by our curated collection of stunning websites using Tailwind CSS. Learn from the best and showcase your own work.</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Featured Websites -->
+    {tailwindWebsites.some(w => w.isFeatured) && (
+      <div class="mb-16">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">Featured Websites</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {tailwindWebsites.filter(w => w.isFeatured).map(website => (
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-200 hover:scale-[1.02] hover:shadow-xl">
+              {website.thumbnail ? (
+                <img src={website.thumbnail} alt={website.title} class="w-full h-48 object-cover" />
+              ) : (
+                <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                  <span class="text-gray-400 text-lg">No preview available</span>
+                </div>
+              )}
+              <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">{website.title}</h3>
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{website.description}</p>
+                <div class="flex items-center justify-between">
+                  <a 
+                    href={website.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    Visit Website →
+                  </a>
+                  <div class="flex flex-wrap items-center gap-2">
+                    {website.claimedBy && getTechnologies(website.id).map(tech => (
+                      <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
+                        {tech.Technologies.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- All Websites -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">Latest Submissions</h2>
+        <div class="flex gap-2">
+          {/* We'll add filters here later */}
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {tailwindWebsites.filter(w => !w.isFeatured).map(website => (
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-200 hover:scale-[1.02] hover:shadow-xl">
+            {website.thumbnail ? (
+              <img src={website.thumbnail} alt={website.title} class="w-full h-48 object-cover" />
+            ) : (
+              <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                <span class="text-gray-400 text-lg">No preview available</span>
+              </div>
+            )}
+            <div class="p-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-2">{website.title}</h3>
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">{website.description}</p>
+              <div class="flex items-center justify-between">
+                <a 
+                  href={website.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Visit Website →
+                </a>
+                <div class="flex flex-wrap items-center gap-2">
+                  {website.claimedBy && getTechnologies(website.id).map(tech => (
+                    <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">
+                      {tech.Technologies.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Experts Section -->
+    {activeExperts.length > 0 && (
+      <div class="mb-16">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-semibold text-gray-900">Tailwind CSS Experts</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {activeExperts.map(expert => {
+            const user = users.find(u => u.id === expert.userId);
+            return (
+              <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-6">
+                  <div class="flex items-center gap-4 mb-4">
+                    <img 
+                      src={`https://avatar.vercel.sh/${user?.username}`}
+                      alt={user?.displayName}
+                      class="w-12 h-12 rounded-full bg-gray-200"
+                    />
+                    <div>
+                      <h3 class="text-lg font-medium text-gray-900">{user?.displayName}</h3>
+                      {expert.startingPrice?.type === 'starting_at' ? (
+                        <p class="text-sm text-gray-600">Starting at ${expert.startingPrice.amount}</p>
+                      ) : (
+                        <p class="text-sm text-gray-600">Contact for pricing</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {expert.services && expert.services.length > 0 && (
+                    <div class="mb-4">
+                      <h4 class="text-sm font-medium text-gray-900 mb-2">Services</h4>
+                      {expert.services.map(service => (
+                        <div class="mb-3">
+                          <p class="text-sm font-medium text-gray-800">{service.title}</p>
+                          <p class="text-sm text-gray-600">{service.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {expert.testimonials && expert.testimonials.length > 0 && (
+                    <div class="mb-4">
+                      <h4 class="text-sm font-medium text-gray-900 mb-2">Client Testimonials</h4>
+                      <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-sm text-gray-600 italic">"{expert.testimonials[0].text}"</p>
+                        <p class="text-sm text-gray-800 mt-2">— {expert.testimonials[0].author}, {expert.testimonials[0].company}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div class="flex items-center gap-3">
+                    {expert.githubUrl && (
+                      <a href={expert.githubUrl} target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-gray-900">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                        </svg>
+                      </a>
+                    )}
+                    {expert.linkedinUrl && (
+                      <a href={expert.linkedinUrl} target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-gray-900">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {expert.availability === 'available' && (
+                      <span class="ml-auto text-sm text-green-600 font-medium">Available for work</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    <!-- Activity Feed -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">Latest Activity</h2>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-200">
+        {activities.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, 10).map(activity => {
+          const user = users.find(u => u.id === activity.userId);
+          const website = activity.websiteId ? websites.find(w => w.id === activity.websiteId) : null;
+          
+          return (
+            <div class="p-4 flex items-center gap-4">
+              <img 
+                src={`https://avatar.vercel.sh/${user?.username}`}
+                alt={user?.displayName}
+                class="w-10 h-10 rounded-full bg-gray-200"
+              />
+              <div class="flex-1">
+                <p class="text-gray-900">
+                  <span class="font-medium">{user?.displayName}</span>
+                  {activity.type === 'website_submission' && (
+                    <span> added <a href={website?.url} target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:text-cyan-800">{activity.metadata.title}</a> to the gallery</span>
+                  )}
+                  {activity.type === 'website_claimed' && (
+                    <span> from <a href={activity.metadata.companyUrl} target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:text-cyan-800">{activity.metadata.companyName}</a> claimed their website</span>
+                  )}
+                  {activity.type === 'expert_joined' && (
+                    <span> from <a href={activity.metadata.companyUrl} target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:text-cyan-800">{activity.metadata.companyName}</a> joined as a Tailwind expert</span>
+                  )}
+                  {activity.type === 'technology_added' && (
+                    <span> added <span class="font-medium">{activity.metadata.name}</span> to technology stack</span>
+                  )}
+                  {activity.type === 'invite_sent' && (
+                    <span> invited a new contributor</span>
+                  )}
+                </p>
+                <p class="text-sm text-gray-500 flex items-center gap-3">
+                  <span>{new Date(activity.createdAt).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</span>
+                  {user?.location && (
+                    <span class="text-gray-400">📍 {user.location}</span>
+                  )}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- Activity Timeline v1: Rich Snippets (Alternative Version) -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">Community Activity (Alternative)</h2>
+      </div>
+      
+      <!-- Timeline with Schema.org markup -->
+      <div class="flow-root">
+        <ul role="list" class="-mb-8">
+          {activities.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, 10).map((activity, idx) => {
+            const user = users.find(u => u.id === activity.userId);
+            const website = activity.websiteId ? websites.find(w => w.id === activity.websiteId) : null;
+            const tech = activity.technologyId ? websiteTechnologies.find(t => t.Technologies.id === activity.technologyId)?.Technologies : null;
+            
+            return (
+              <li itemscope itemtype="https://schema.org/Event">
+                <div class="relative pb-8">
+                  {idx !== activities.length - 1 ? (
+                    <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                  ) : null}
+                  
+                  <div class="relative flex space-x-3">
+                    <!-- Activity Icon -->
+                    <div>
+                      <span class={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white
+                        ${activity.type === 'website_submitted' ? 'bg-green-500' :
+                          activity.type === 'website_claimed' ? 'bg-blue-500' :
+                          activity.type === 'expert_joined' ? 'bg-purple-500' :
+                          activity.type === 'technology_added' ? 'bg-yellow-500' : 'bg-gray-500'}`}>
+                        {activity.type === 'website_submitted' && (
+                          <svg class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                          </svg>
+                        )}
+                        {activity.type === 'website_claimed' && (
+                          <svg class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                          </svg>
+                        )}
+                        {activity.type === 'expert_joined' && (
+                          <svg class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                          </svg>
+                        )}
+                        {activity.type === 'technology_added' && (
+                          <svg class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                          </svg>
+                        )}
+                      </span>
+                    </div>
+
+                    <!-- Activity Content -->
+                    <div class="flex min-w-0 flex-1 justify-between space-x-4">
+                      <div>
+                        <p class="text-sm text-gray-600">
+                          <a href={`/users/${user?.username}`} class="font-medium text-gray-900 hover:underline" itemprop="performer">
+                            {user?.displayName || user?.username}
+                          </a>
+                          {' '}
+                          <span itemprop="name">
+                            {activity.type === 'website_submitted' && 'submitted'}
+                            {activity.type === 'website_claimed' && 'claimed'}
+                            {activity.type === 'expert_joined' && 'joined as an expert'}
+                            {activity.type === 'technology_added' && 'added technology to'}
+                            {' '}
+                          </span>
+                          {website && (
+                            <a 
+                              href={website.url} 
+                              class="font-medium text-blue-600 hover:underline"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              itemprop="location"
+                            >
+                              {website.title}
+                            </a>
+                          )}
+                          {tech && (
+                            <span class="font-medium text-gray-900">
+                              {tech.name}
+                            </span>
+                          )}
+                        </p>
+                        {activity.metadata?.company && (
+                          <p class="mt-0.5 text-sm text-gray-500" itemprop="description">
+                            From {activity.metadata.company}
+                            {activity.metadata.position && ` as ${activity.metadata.position}`}
+                          </p>
+                        )}
+                      </div>
+                      <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                        <time datetime={activity.createdAt.toISOString()} itemprop="startDate">
+                          {new Intl.DateTimeFormat('en-US', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric'
+                          }).format(activity.createdAt)}
+                        </time>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <!-- View All Activities Link -->
+      <div class="mt-6 text-center">
+        <a href="/activities" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+          View All Activities
+          <svg class="ml-2 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Activity Heatmap v1 -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">Community Pulse</h2>
+      </div>
+
+      {(() => {
+        type ActivityCount = { [key: string]: number };
+        
+        // Helper function to get date key
+        const getDateKey = (date: Date): string => {
+          return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        };
+
+        // Get activity counts for last 90 days
+        const now = new Date();
+        const days: string[] = Array.from({length: 90}, (_, i) => {
+          const d = new Date();
+          d.setDate(now.getDate() - i);
+          return getDateKey(d);
+        }).reverse();
+
+        // Count activities per day
+        const activityCounts: ActivityCount = {};
+        activities.forEach(activity => {
+          const key = getDateKey(activity.createdAt);
+          activityCounts[key] = (activityCounts[key] || 0) + 1;
+        });
+
+        // Get max count for scaling
+        const maxCount = Math.max(...Object.values(activityCounts));
+
+        // Helper function to get intensity class
+        const getIntensityClass = (count: number): string => {
+          if (!count) return 'bg-gray-100';
+          const intensity = Math.ceil((count / maxCount) * 4);
+          switch (intensity) {
+            case 1: return 'bg-cyan-100 hover:bg-cyan-200';
+            case 2: return 'bg-cyan-200 hover:bg-cyan-300';
+            case 3: return 'bg-cyan-300 hover:bg-cyan-400';
+            case 4: return 'bg-cyan-400 hover:bg-cyan-500';
+            default: return 'bg-cyan-500 hover:bg-cyan-600';
+          }
+        };
+
+        return (
+          <div>
+            <div class="grid grid-cols-[auto_1fr] gap-4">
+              {/* Days of week */}
+              <div class="pt-2">
+                <div class="grid grid-rows-7 gap-1 text-xs text-gray-500">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    <div class="h-4 flex items-center">{day}</div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Calendar grid */}
+              <div class="grid grid-cols-[repeat(13,1fr)] gap-1">
+                {Array.from({ length: Math.ceil(days.length / 7) }).map((_, weekIndex) => (
+                  <div class="grid grid-rows-7 gap-1">
+                    {Array.from({ length: 7 }).map((_, dayIndex) => {
+                      const dayOffset = weekIndex * 7 + dayIndex;
+                      const date = days[dayOffset];
+                      const count = date ? activityCounts[date] || 0 : 0;
+                      
+                      if (!date) return <div class="w-4 h-4"></div>;
+
+                      return (
+                        <div 
+                          class={`w-4 h-4 rounded-sm ${getIntensityClass(count)} transition-colors cursor-pointer group relative`}
+                          title={`${count} activities on ${new Date(date).toLocaleDateString()}`}
+                        >
+                          {/* Tooltip */}
+                          <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">
+                            {count} activities on {new Date(date).toLocaleDateString()}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Legend */}
+            <div class="mt-4 flex items-center gap-2 text-sm text-gray-600">
+              <span>Less</span>
+              <div class="flex gap-1">
+                {['bg-gray-100', 'bg-cyan-100', 'bg-cyan-200', 'bg-cyan-300', 'bg-cyan-400', 'bg-cyan-500'].map(bgClass => (
+                  <div class={`w-4 h-4 rounded-sm ${bgClass}`}></div>
+                ))}
+              </div>
+              <span>More</span>
+            </div>
+          </div>
+        );
+      })()}
+    </div>
+
+    <!-- Contributors Journey v1 -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">Top Contributors Journey</h2>
+      </div>
+
+      {(() => {
+        type ContributorStats = { [userId: number]: number };
+        type ActivityType = 'joined' | 'website_submission' | 'expert_joined';
+        
+        interface Milestone {
+          date: Date;
+          type: ActivityType;
+          title: string;
+        }
+
+        interface ContributorJourney {
+          user: User;
+          milestones: Milestone[];
+          totalActivities: number;
+          daysActive: number;
+        }
+
+        // Get top contributors based on activity
+        const stats: ContributorStats = {};
+        activities.forEach(activity => {
+          stats[activity.userId] = (stats[activity.userId] || 0) + 1;
+        });
+
+        const topContributors = Object.entries(stats)
+          .sort(([, countA], [, countB]) => countB - countA)
+          .slice(0, 5)
+          .map(([userId]) => parseInt(userId));
+
+        const journeys: ContributorJourney[] = topContributors
+          .map(userId => {
+            const user = users.find(u => u.id === userId);
+            if (!user) return null;
+
+            const userActivities = activities
+              .filter(a => a.userId === userId)
+              .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+            if (userActivities.length === 0) return null;
+
+            const firstActivity = userActivities[0];
+            const latestActivity = userActivities[userActivities.length - 1];
+            const totalDays = Math.ceil(
+              (latestActivity.createdAt.getTime() - firstActivity.createdAt.getTime()) / 
+              (1000 * 60 * 60 * 24)
+            );
+
+            const milestones: Milestone[] = [
+              {
+                date: firstActivity.createdAt,
+                type: 'joined' as ActivityType,
+                title: 'Joined the community'
+              },
+              ...userActivities
+                .filter(a => a.type === 'website_submission' || a.type === 'expert_joined')
+                .map(a => ({
+                  date: a.createdAt,
+                  type: a.type as ActivityType,
+                  title: a.type === 'website_submission'
+                    ? `Submitted ${websites.find(w => w.id === a.websiteId)?.title}`
+                    : 'Became an expert'
+                }))
+            ].slice(0, 4);
+
+            return {
+              user,
+              milestones,
+              totalActivities: userActivities.length,
+              daysActive: totalDays
+            };
+          })
+          .filter((journey): journey is ContributorJourney => journey !== null);
+
+        return (
+          <div class="space-y-8">
+            {journeys.map((journey, idx) => (
+              <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                {/* Contributor Header */}
+                <div class="flex items-center gap-4 mb-6">
+                  <img 
+                    src={`https://avatar.vercel.sh/${journey.user.username}`}
+                    alt={journey.user.displayName}
+                    class="w-12 h-12 rounded-full bg-gray-200"
+                  />
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900">
+                      {journey.user.displayName || journey.user.username}
+                    </h3>
+                    <p class="text-sm text-gray-600">
+                      {journey.totalActivities} activities over {journey.daysActive} days
+                    </p>
+                  </div>
+                </div>
+
+                {/* Journey Timeline */}
+                <div class="relative">
+                  <div class="absolute top-0 left-4 h-full w-0.5 bg-gray-200"></div>
+                  <div class="space-y-6">
+                    {journey.milestones.map((milestone, idx) => (
+                      <div class="relative flex gap-4">
+                        <div class={`w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white
+                          ${milestone.type === 'joined' ? 'bg-green-500' :
+                            milestone.type === 'website_submission' ? 'bg-blue-500' :
+                            'bg-purple-500'}`}>
+                          {milestone.type === 'joined' && (
+                            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          )}
+                          {milestone.type === 'website_submission' && (
+                            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                          )}
+                          {milestone.type === 'expert_joined' && (
+                            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                            </svg>
+                          )}
+                        </div>
+                        <div class="flex-1 pt-1.5">
+                          <p class="text-sm font-medium text-gray-900">{milestone.title}</p>
+                          <p class="text-sm text-gray-500">
+                            {new Intl.DateTimeFormat('en-US', { 
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            }).format(milestone.date)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+    </div>
+
+    <!-- Technology Trends v1 -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">Technology Trends</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...new Set(websiteTechnologies.map(wt => wt.Technologies?.id))].filter(Boolean).map(techId => {
+          const tech = websiteTechnologies.find(wt => wt.Technologies?.id === techId)?.Technologies;
+          if (!tech?.id) return null;
+          
+          const techUsage = websiteTechnologies.filter(wt => wt.Technologies?.id === techId);
+          const recentActivities = activities
+            .filter(a => a.technologyId === techId)
+            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+            .slice(0, 3);
+          
+          if (!tech) return null;
+          
+          return (
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <div class="p-6">
+                <!-- Technology Header -->
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900">{tech.name}</h3>
+                    <p class="text-sm text-gray-600">{techUsage.length} websites using this</p>
+                  </div>
+                  <div class="flex gap-2">
+                    {tech.githubUrl && (
+                      <a 
+                        href={tech.githubUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        class="text-gray-400 hover:text-gray-600"
+                        title="View on GitHub"
+                      >
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                        </svg>
+                      </a>
+                    )}
+                    {tech.docsUrl && (
+                      <a 
+                        href={tech.docsUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        class="text-gray-400 hover:text-gray-600"
+                        title="View Documentation"
+                      >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <!-- Recent Activity -->
+                {recentActivities.length > 0 && (
+                  <div class="mt-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Recent Activity</h4>
+                    <div class="space-y-3">
+                      {recentActivities.map(activity => {
+                        const user = users.find(u => u.id === activity.userId);
+                        const website = activity.websiteId ? websites.find(w => w.id === activity.websiteId) : null;
+                        
+                        return (
+                          <div class="flex items-center gap-3">
+                            <img 
+                              src={`https://avatar.vercel.sh/${user?.username}`}
+                              alt={user?.displayName}
+                              class="w-6 h-6 rounded-full bg-gray-200"
+                            />
+                            <div class="flex-1 min-w-0">
+                              <p class="text-sm text-gray-600 truncate">
+                                <a href={`/users/${user?.username}`} class="font-medium text-gray-900 hover:underline">
+                                  {user?.displayName || user?.username}
+                                </a>
+                                {' '}added to{' '}
+                                {website && (
+                                  <a 
+                                    href={website.url} 
+                                    class="text-blue-600 hover:underline"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {website.title}
+                                  </a>
+                                )}
+                              </p>
+                            </div>
+                            <time class="text-xs text-gray-500 whitespace-nowrap">
+                              {new Intl.DateTimeFormat('en-US', { 
+                                month: 'short', 
+                                day: 'numeric'
+                              }).format(activity.createdAt)}
+                            </time>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <!-- Example Websites -->
+                {techUsage.length > 0 && (
+                  <div class="mt-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Example Websites</h4>
+                    <div class="flex flex-wrap gap-2">
+                      {techUsage.slice(0, 3).map(usage => {
+                        const website = websites.find(w => w.id === usage.WebsiteTechnologies.websiteId);
+                        if (!website) return null;
+                        
+                        return (
+                          <a 
+                            href={website.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200"
+                          >
+                            {website.title}
+                          </a>
+                        );
+                      })}
+                      {techUsage.length > 3 && (
+                        <span class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-gray-50 text-gray-600">
+                          +{techUsage.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- Contributors Section -->
+    <section class="py-12 bg-gradient-to-br from-gray-50 to-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-3 flex items-center justify-center gap-2">
+            <span>🌍</span> 
+            Global Community of Tailwind Enthusiasts
+          </h2>
+          <p class="text-lg text-gray-600">
+            Join contributors from around the world sharing their Tailwind expertise
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {users
+            .filter(u => u.totalSubmissions > 0 || u.role === 'admin' || u.role === 'editor')
+            .map(contributor => (
+              <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-start space-x-4">
+                  <img 
+                    src={`https://avatar.vercel.sh/${contributor.username}`}
+                    alt={contributor.displayName}
+                    class="w-12 h-12 rounded-full bg-gray-200"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between">
+                      <div>
+                        <h4 class="text-base font-medium text-gray-900">
+                          {contributor.displayName}
+                        </h4>
+                        {contributor.location && (
+                          <p class="mt-1 text-sm text-gray-500 flex items-center gap-1">
+                            📍 {contributor.location}
+                          </p>
+                        )}
+                      </div>
+                      {contributor.totalSubmissions > 0 && (
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                          {contributor.totalSubmissions} sites
+                        </span>
+                      )}
+                    </div>
+                    {contributor.bio && (
+                      <p class="mt-2 text-sm text-gray-600 line-clamp-2">{contributor.bio}</p>
+                    )}
+                    {contributor.role === 'admin' && (
+                      <span class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        Admin
+                      </span>
+                    )}
+                    {contributor.role === 'editor' && (
+                      <span class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Editor
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+
+        <div class="mt-12 text-center">
+          <a 
+            href="/submit" 
+            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-cyan-600 hover:bg-cyan-700 transition-colors"
+          >
+            Join Our Community
+          </a>
+          <p class="mt-3 text-sm text-gray-500">
+            Share your Tailwind projects and become part of our global community
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tailwind Pulse v1 -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">Tailwind Pulse</h2>
+        <span class="text-sm text-gray-500">Live ecosystem metrics</span>
+      </div>
+
+      {/* Main Stats Grid */}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* GitHub Stats */}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">GitHub Activity</h3>
+            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+            </svg>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Stars</span>
+                <span class="font-medium text-gray-900">73.2k</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-yellow-400 rounded-full" style="width: 85%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Forks</span>
+                <span class="font-medium text-gray-900">3.6k</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-400 rounded-full" style="width: 65%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Contributors</span>
+                <span class="font-medium text-gray-900">428</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-green-400 rounded-full" style="width: 45%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* NPM Stats */}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">NPM Downloads</h3>
+            <svg class="w-6 h-6 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"/>
+            </svg>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 mb-2">2.1M</div>
+          <div class="text-sm text-gray-600 mb-4">Weekly downloads</div>
+          <div class="flex items-center gap-2 text-sm">
+            <span class="flex items-center text-green-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+              </svg>
+              +12.3%
+            </span>
+            <span class="text-gray-500">vs last month</span>
+          </div>
+        </div>
+
+        {/* State of CSS */}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Developer Satisfaction</h3>
+            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="space-y-4">
+            <div class="flex items-center gap-4">
+              <div class="flex-1">
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-gray-600">Satisfaction</span>
+                  <span class="font-medium text-gray-900">91%</span>
+                </div>
+                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-green-400 rounded-full" style="width: 91%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="flex-1">
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-gray-600">Usage</span>
+                  <span class="font-medium text-gray-900">78%</span>
+                </div>
+                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-blue-400 rounded-full" style="width: 78%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="flex-1">
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-gray-600">Interest</span>
+                  <span class="font-medium text-gray-900">95%</span>
+                </div>
+                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-purple-400 rounded-full" style="width: 95%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stack Overflow */}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Stack Overflow</h3>
+            <svg class="w-6 h-6 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.36 20.2v-5.38h1.79V22H3v-7.18h1.8v5.38h12.56M6.77 14.32l.37-1.76 8.79 1.85-.37 1.76-8.79-1.85m1.16-4.21l.76-1.61 8.14 3.78-.76 1.62-8.14-3.79m2.26-3.99l1.15-1.38 6.9 5.76-1.15 1.37-6.9-5.75m4.45-4.25L20 9.08l-1.44 1.07-5.36-7.21 1.44-1.07M6.59 18.41v-1.8h8.98v1.8H6.59z"/>
+            </svg>
+          </div>
+          <div class="space-y-4">
+            <div class="text-3xl font-bold text-gray-900">15.2k</div>
+            <div class="text-sm text-gray-600">Questions tagged</div>
+            <div class="flex items-center gap-4 pt-2">
+              <div class="flex-1">
+                <div class="text-sm text-gray-600 mb-1">Answer rate</div>
+                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-orange-400 rounded-full" style="width: 82%"></div>
+                </div>
+              </div>
+              <div class="text-sm font-medium text-gray-900">82%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Detailed Stats */}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Release Timeline */}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Release Timeline</h3>
+          <div class="space-y-4">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-cyan-100 flex items-center justify-center">
+                <span class="text-cyan-600 font-medium">v3.3</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-medium text-gray-900">Tailwind CSS v3.3.0</h4>
+                    <p class="text-sm text-gray-600">ESM/TS support, container queries, and more</p>
+                  </div>
+                  <span class="text-sm text-gray-500">Mar 2023</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                <span class="text-gray-600 font-medium">v3.2</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-medium text-gray-900">Tailwind CSS v3.2.0</h4>
+                    <p class="text-sm text-gray-600">Dynamic viewport units, :has support</p>
+                  </div>
+                  <span class="text-sm text-gray-500">Oct 2022</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Framework Comparison */}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Framework Comparison</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Tailwind CSS</span>
+                <span class="font-medium text-gray-900">2.1M weekly</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-cyan-400 rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Bootstrap</span>
+                <span class="font-medium text-gray-900">1.8M weekly</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-purple-400 rounded-full" style="width: 85%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Material UI</span>
+                <span class="font-medium text-gray-900">1.5M weekly</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-400 rounded-full" style="width: 70%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Community Growth */}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Community Growth</h3>
+          <div class="space-y-6">
+            <div class="grid grid-cols-3 gap-4">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">1.2M</div>
+                <div class="text-sm text-gray-600">Discord members</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">73.2k</div>
+                <div class="text-sm text-gray-600">GitHub stars</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">42k</div>
+                <div class="text-sm text-gray-600">Twitter followers</div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Monthly growth</span>
+                <span class="text-green-600">+15.4%</span>
+              </div>
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-green-400 rounded-full" style="width: 88%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Ecosystem Stats */}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Ecosystem Stats</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-4 bg-gray-50 rounded-lg">
+              <div class="text-sm text-gray-600 mb-1">Components</div>
+              <div class="text-2xl font-bold text-gray-900">5,200+</div>
+              <div class="text-sm text-gray-500">Open source</div>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+              <div class="text-sm text-gray-600 mb-1">Templates</div>
+              <div class="text-2xl font-bold text-gray-900">1,800+</div>
+              <div class="text-sm text-gray-500">Ready to use</div>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+              <div class="text-sm text-gray-600 mb-1">Plugins</div>
+              <div class="text-2xl font-bold text-gray-900">320+</div>
+              <div class="text-sm text-gray-500">Official & community</div>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+              <div class="text-sm text-gray-600 mb-1">IDE Extensions</div>
+              <div class="text-2xl font-bold text-gray-900">25+</div>
+              <div class="text-sm text-gray-500">Major editors</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Data Sources Note */}
+      <div class="mt-6 text-center text-sm text-gray-500">
+        Data sourced from GitHub, NPM, State of CSS Survey, Stack Overflow, and official Tailwind channels
+      </div>
+    </div>
+  </div>
+</body>
+</html>
