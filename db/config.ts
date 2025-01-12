@@ -84,6 +84,43 @@ const Websites = defineTable({
   },
 });
 
+const Technologies = defineTable({
+  columns: {
+    // Basic info
+    id: column.number({ primaryKey: true }),
+    name: column.text(), // np. 'Next.js', 'Astro'
+    slug: column.text(), // np. 'nextjs', 'astro' (do URL-i)
+    
+    // Categorization
+    category: column.text(), // 'Framework', 'Library', 'Tool', etc.
+    type: column.text(), // 'Frontend', 'Backend', 'Full Stack', etc.
+    
+    // Details
+    description: column.text({ optional: true }),
+    websiteUrl: column.text({ optional: true }),
+    docsUrl: column.text({ optional: true }),
+    githubUrl: column.text({ optional: true }),
+    icon: column.text({ optional: true }),
+    
+    // Stats & Metadata
+    createdAt: column.date(),
+    addedBy: column.number(), // ID usera
+    isApproved: column.boolean({ default: false }),
+    usageCount: column.number({ default: 0 }), // ile stron używa tej technologii
+  },
+});
+
+// Junction table for many-to-many relationship between Websites and Technologies
+const WebsiteTechnologies = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    websiteId: column.number(),
+    technologyId: column.number(),
+    addedAt: column.date(),
+    addedBy: column.number(), // ID usera który dodał tę technologię do strony
+  },
+});
+
 export default defineDb({
-  tables: { Users, Invites, Websites },
+  tables: { Users, Invites, Websites, Technologies, WebsiteTechnologies },
 });
