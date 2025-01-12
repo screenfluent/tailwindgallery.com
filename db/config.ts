@@ -1,5 +1,8 @@
 import { defineDb, defineTable, column } from 'astro:db';
 
+/**
+ * Users table - stores all user accounts and their basic information
+ */
 const Users = defineTable({
   columns: {
     // Basic user information
@@ -15,7 +18,7 @@ const Users = defineTable({
     website: column.text({ optional: true }), // Personal website URL
     
     // SEO & Social media profiles
-    seoTitle: column.text({ optional: true }), // Custom title for profile page, e.g., "John Doe - Frontend Expert"
+    seoTitle: column.text({ optional: true }), // Custom title for profile page
     seoDescription: column.text({ optional: true }), // Custom meta description for profile page
     twitterHandle: column.text({ optional: true }), // Twitter username without @
     githubHandle: column.text({ optional: true }), // GitHub username
@@ -27,16 +30,13 @@ const Users = defineTable({
     customSections: column.json({ default: [] }), // Array of custom sections with title and content
     
     // Role & Access management
-    role: column.text({ default: 'contributor' }), // Options: superadmin/admin/editor/contributor
-    permissions: column.json({ default: [] }), // Array of permission keys like ['approve_websites', 'edit_websites']
-    status: column.text({ default: 'active' }), // Options: active/inactive/banned
+    role: column.text({ default: 'contributor' }), // User's primary role in the system
+    permissions: column.json({ default: [] }), // Array of permission keys for granular access control
+    status: column.text({ default: 'active' }), // User account status
     invitedBy: column.number({ optional: true }), // User ID of the inviter
     
     // Profile type management
-    profileTypes: column.json({ default: [] }), // Array of profile types:
-                                               // 'owner' - website owner who claimed their listing
-                                               // 'expert' - paid listing in /experts (offering Tailwind services)
-                                               // 'contributor' - active community member (submitting/reviewing)
+    profileTypes: column.json({ default: [] }), // Array of user's profile types (can have multiple)
     
     // Activity tracking & Gamification
     lastActiveAt: column.date(), // Last user activity timestamp
@@ -49,6 +49,9 @@ const Users = defineTable({
   },
 });
 
+/**
+ * Invites table - manages invite-only registration system
+ */
 const Invites = defineTable({
   columns: {
     // Basic invite information
@@ -62,10 +65,13 @@ const Invites = defineTable({
     usedBy: column.number({ optional: true }), // User ID who used the invite (null if unused)
     
     // Invite status tracking
-    status: column.text({ default: 'active' }), // Options: active/used/expired/revoked
+    status: column.text({ default: 'active' }), // Current invite status
   },
 });
 
+/**
+ * Websites table - stores all website submissions and their details
+ */
 const Websites = defineTable({
   columns: {
     // Basic website information
@@ -78,24 +84,24 @@ const Websites = defineTable({
     // Technology stack
     technologies: column.json(), // Array of technology IDs used on the website
     usesTailwind: column.boolean({ default: false }), // Whether the site uses Tailwind CSS
-    showcaseType: column.text({ default: 'portfolio' }), // Options: tailwind/portfolio/both
+    showcaseType: column.text({ default: 'portfolio' }), // Type of showcase listing
     
     // Ownership & Verification
     claimedBy: column.number({ optional: true }), // User ID who claimed ownership
     claimedAt: column.date({ optional: true }), // When the website was claimed
-    verificationMethod: column.text({ optional: true }), // Options: dns/meta-tag/file/oauth
+    verificationMethod: column.text({ optional: true }), // Method used for ownership verification
     isVerified: column.boolean({ default: false }), // Whether ownership is verified
     
     // Business features & Monetization
     isFeatured: column.boolean({ default: false }), // Manually featured by admin
     isBoosted: column.boolean({ default: false }), // Paid promotion
     boostExpiresAt: column.date({ optional: true }), // When the boost expires
-    sponsorshipType: column.text({ optional: true }), // Options: regular/exclusive/founding
+    sponsorshipType: column.text({ optional: true }), // Type of sponsorship
     
     // Metadata & Statistics
     createdAt: column.date(), // When the website was submitted
     updatedAt: column.date(), // Last update timestamp
-    status: column.text({ default: 'pending' }), // Options: pending/approved/rejected/archived
+    status: column.text({ default: 'pending' }), // Current moderation status
     submittedBy: column.number(), // User ID who submitted
     views: column.number({ default: 0 }), // Page view counter
     upvotes: column.number({ default: 0 }), // Number of upvotes
@@ -110,6 +116,9 @@ const Websites = defineTable({
   },
 });
 
+/**
+ * Technologies table - stores all technology options for website stack
+ */
 const Technologies = defineTable({
   columns: {
     // Basic technology information
@@ -118,8 +127,8 @@ const Technologies = defineTable({
     slug: column.text(), // URL-friendly name (e.g., 'nextjs', 'astro')
     
     // Technology categorization
-    category: column.text(), // Options: Framework/Library/Tool/Language
-    type: column.text(), // Options: Frontend/Backend/Full Stack/DevOps
+    category: column.text(), // Technology category
+    type: column.text(), // Technology type
     
     // Detailed information
     description: column.text({ optional: true }), // Technology description
@@ -142,6 +151,9 @@ const Technologies = defineTable({
   },
 });
 
+/**
+ * WebsiteTechnologies table - manages many-to-many relationship between websites and technologies
+ */
 const WebsiteTechnologies = defineTable({
   columns: {
     // Relationship identifiers
@@ -155,11 +167,14 @@ const WebsiteTechnologies = defineTable({
   },
 });
 
+/**
+ * Activities table - tracks all user actions for gamification and moderation
+ */
 const Activities = defineTable({
   columns: {
     // Basic activity information
     id: column.number({ primaryKey: true }),
-    type: column.text(), // Activity type: submit_website/vote/add_tech/claim_website
+    type: column.text(), // Type of activity performed
     createdAt: column.date(), // When the activity occurred
     
     // Activity performer
@@ -179,12 +194,15 @@ const Activities = defineTable({
   },
 });
 
+/**
+ * Profiles table - manages different profile types for users (owner/expert/contributor)
+ */
 const Profiles = defineTable({
   columns: {
     // Basic profile information
     id: column.number({ primaryKey: true }),
     userId: column.number(), // Reference to Users table
-    type: column.text(), // Profile type: owner/expert/contributor
+    type: column.text(), // Profile type
     createdAt: column.date(), // When the profile was created
     
     // Website owner specific fields
@@ -195,7 +213,7 @@ const Profiles = defineTable({
     // Expert specific fields
     expertise: column.json({ optional: true }), // Array of technology expertise
     hourlyRate: column.number({ optional: true }), // Consulting rate
-    availability: column.text({ optional: true }), // Options: full-time/part-time/not-available
+    availability: column.text({ optional: true }), // Current availability status
     githubUrl: column.text({ optional: true }), // GitHub profile URL
     linkedinUrl: column.text({ optional: true }), // LinkedIn profile URL
     
@@ -214,7 +232,7 @@ const Profiles = defineTable({
     // Status & Visibility
     isVerified: column.boolean({ default: false }), // Whether profile is verified
     featuredOrder: column.number({ optional: true }), // Order in featured lists
-    status: column.text({ default: 'active' }), // Options: active/inactive/featured
+    status: column.text({ default: 'active' }), // Current profile status
   },
 });
 
