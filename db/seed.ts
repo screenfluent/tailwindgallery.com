@@ -1,4 +1,4 @@
-import { db, Users, Invites, Websites, Technologies, WebsiteTechnologies, Activities } from 'astro:db';
+import { db, Users, Invites, Websites, Technologies, WebsiteTechnologies, Activities, Profiles } from 'astro:db';
 
 export default async function () {
   const now = new Date();
@@ -23,6 +23,7 @@ export default async function () {
         'feature_websites',
         'manage_monetization'
       ],
+      profileTypes: ['owner', 'expert'],
       isFounder: true,
       bio: 'Founder of TailwindGallery',
     },
@@ -187,6 +188,34 @@ export default async function () {
         action: 'add',
       },
       isProcessed: true,
+    },
+  ]);
+
+  // Create profiles
+  await db.insert(Profiles).values([
+    {
+      // Twój profil właściciela
+      id: 1,
+      userId: 1,
+      type: 'owner',
+      createdAt: now,
+      ownedWebsites: [1], // ID TailwindGallery
+      companyName: 'TailwindGallery',
+      position: 'Founder',
+      isVerified: true,
+      featuredOrder: 1,
+    },
+    {
+      // Twój profil eksperta
+      id: 2,
+      userId: 1,
+      type: 'expert',
+      createdAt: now,
+      expertise: ['Astro', 'Tailwind CSS', 'TypeScript'],
+      githubUrl: 'https://github.com/szymon', // zmień na swój
+      linkedinUrl: 'https://linkedin.com/in/szymon', // zmień na swój
+      isVerified: true,
+      featuredOrder: 1,
     },
   ]);
 }

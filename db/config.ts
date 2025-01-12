@@ -20,6 +20,9 @@ const Users = defineTable({
     status: column.text({ default: 'active' }), // active/inactive
     invitedBy: column.number({ optional: true }),
     
+    // Profile Types (można mieć kilka)
+    profileTypes: column.json({ default: [] }), // ['owner', 'expert', 'instructor', etc.]
+    
     // Activity
     lastActiveAt: column.date(),
     contributionScore: column.number({ default: 0 }),
@@ -155,6 +158,38 @@ const Activities = defineTable({
   },
 });
 
+// Różne typy profili użytkowników
+const Profiles = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    userId: column.number(),
+    type: column.text(), // owner/expert/instructor/etc.
+    createdAt: column.date(),
+    
+    // Owner Profile
+    ownedWebsites: column.json({ optional: true }), // [websiteId1, websiteId2]
+    companyName: column.text({ optional: true }),
+    position: column.text({ optional: true }),
+    
+    // Expert Profile
+    expertise: column.json({ optional: true }), // ['Next.js', 'Tailwind', etc.]
+    hourlyRate: column.number({ optional: true }),
+    availability: column.text({ optional: true }), // 'full-time', 'part-time', etc.
+    githubUrl: column.text({ optional: true }),
+    linkedinUrl: column.text({ optional: true }),
+    
+    // Instructor Profile
+    coursesCreated: column.number({ optional: true }),
+    totalStudents: column.number({ optional: true }),
+    teachingExperience: column.text({ optional: true }),
+    
+    // Wspólne pola
+    isVerified: column.boolean({ default: false }),
+    featuredOrder: column.number({ optional: true }), // do sortowania na stronie
+    status: column.text({ default: 'active' }),
+  },
+});
+
 export default defineDb({
-  tables: { Users, Invites, Websites, Technologies, WebsiteTechnologies, Activities },
+  tables: { Users, Invites, Websites, Technologies, WebsiteTechnologies, Activities, Profiles },
 });
