@@ -1,5 +1,9 @@
 ---
 import { db, Users, Websites, Activities } from 'astro:db';
+import { Image } from 'astro:assets';
+import mobileScreen from '../assets/screenshots/supabase-mobile.jpeg';
+import tabletScreen from '../assets/screenshots/supabase-tablet.jpeg';
+import desktopScreen from '../assets/screenshots/supabase-desktop.jpeg';
 
 // Basic interfaces
 interface User {
@@ -235,11 +239,12 @@ const tailwindWebsites = websites.filter(w => w.usesTailwind);
               </div>
               {/* Mobile Screenshot - Bottom Left, Peeking */}
               <div class="absolute left-0 -bottom-16 w-[35%] z-10 group-hover:translate-y-2 transition-transform duration-300">
-                <img 
-                  src="/screenshots/supabase-mobile.jpeg"
+                <Image 
+                  src={mobileScreen}
                   alt="Mobile view"
                   class="rounded-tr-lg shadow-lg w-full object-cover"
-                  style="aspect-ratio: 9/19;"
+                  loading="lazy"
+                  format="webp"
                 />
               </div>
             </div>
@@ -288,33 +293,39 @@ const tailwindWebsites = websites.filter(w => w.usesTailwind);
         {/* Wide Card 2 */}
         <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div class="bg-neutral-100 p-4">
-            {/* Desktop */}
-            <div class="mb-8">
-              <img 
-                src="/screenshots/supabase-desktop.jpeg"
-                alt="Desktop view"
-                class="w-full rounded-lg shadow-sm"
-              />
-            </div>
-            
             {/* Mobile & Tablet Container */}
-            <div class="flex gap-6">
+            <div class="flex gap-6 mb-8">
               {/* Mobile */}
               <div class="w-[40%]">
-                <img 
-                  src="/screenshots/supabase-mobile.jpeg"
+                <Image 
+                  src={mobileScreen}
                   alt="Mobile view"
                   class="w-full rounded-lg shadow-sm"
+                  loading="lazy"
+                  format="webp"
                 />
               </div>
               {/* Tablet */}
               <div class="w-[60%]">
-                <img 
-                  src="/screenshots/supabase-tablet.jpeg"
+                <Image 
+                  src={tabletScreen}
                   alt="Tablet view"
                   class="w-full rounded-lg shadow-sm"
+                  loading="lazy"
+                  format="webp"
                 />
               </div>
+            </div>
+            
+            {/* Desktop - Below */}
+            <div>
+              <Image 
+                src={desktopScreen}
+                alt="Desktop view"
+                class="w-full rounded-lg shadow-sm"
+                loading="lazy"
+                format="webp"
+              />
             </div>
           </div>
 
