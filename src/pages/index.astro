@@ -90,19 +90,19 @@ const weeklyStats = {
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-green-400"></span>
           <span class="mono text-gray-600">
-            <span class="text-gray-900 font-medium">+{weeklyStats.newWebsites}</span> nowych stron
+            <span class="text-gray-900 font-medium">+{weeklyStats.newWebsites}</span> new websites
           </span>
         </div>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-purple-400"></span>
           <span class="mono text-gray-600">
-            <span class="text-gray-900 font-medium">+{weeklyStats.newLikes}</span> nowych lajków
+            <span class="text-gray-900 font-medium">+{weeklyStats.newLikes}</span> new likes
           </span>
         </div>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-blue-400"></span>
           <span class="mono text-gray-600">
-            <span class="text-gray-900 font-medium">+{weeklyStats.newContributors}</span> nowych kontrybutorów
+            <span class="text-gray-900 font-medium">+{weeklyStats.newContributors}</span> new contributors
           </span>
         </div>
       </div>
@@ -254,136 +254,343 @@ const weeklyStats = {
 
     {/* New Section with Wider Cards */}
     <div class="mt-24">
-      <h2 class="text-2xl font-bold text-gray-900 mb-8">Najnowsze perełki 💎</h2>
+      <h2 class="text-2xl font-bold text-gray-900 mb-8">Latest Additions 💎</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         
-        {/* Wide Card 1 - Mobbin Style */}
-        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group">
-          <div class="relative aspect-[4/3] bg-neutral-200 overflow-hidden">
-            <div class="relative h-full">
-              {/* Desktop Screenshot - Top */}
-              <div class="absolute -right-[87px] w-[85%] top-0 z-20 group-hover:-translate-y-2 transition-transform duration-300">
-                <img 
-                  src="/screenshots/supabase-desktop.jpeg"
+        {/* Wide Card 1 - Turbo */}
+        <a href="https://turbo.build" target="_blank" rel="noopener noreferrer" class="block">
+          <div class="bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group">
+            <div class="bg-[#EAEAEA] p-4 group-hover:bg-[#F0F0F0] transition-colors duration-300 relative">
+              {/* Gradient Overlay */}
+              <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"></div>
+              
+              {/* Mobile & Tablet Container */}
+              <div class="flex gap-3">
+                {/* Mobile */}
+                <div class="w-[40%] h-[290px] overflow-hidden rounded-lg">
+                  <Image 
+                    src={import("../assets/screenshots/granola-mobile.jpeg")}
+                    alt="Mobile view"
+                    class="w-full h-full shadow-sm object-cover"
+                  />
+                </div>
+                {/* Tablet */}
+                <div class="w-[60%] h-[290px] overflow-hidden rounded-lg">
+                  <Image 
+                    src={import("../assets/screenshots/granola-tablet.jpeg")}
+                    alt="Tablet view"
+                    class="w-full h-full shadow-sm object-cover"
+                  />
+                </div>
+              </div>
+              
+              {/* Desktop - Below */}
+              <div class="mt-3 overflow-hidden rounded-lg">
+                <Image 
+                  src={import("../assets/screenshots/granola-desktop.jpeg")}
                   alt="Desktop view"
-                  class="rounded-bl-lg shadow-lg w-full object-cover"
-                  style="aspect-ratio: 16/10;"
+                  class="w-full shadow-sm"
                 />
               </div>
-              {/* Tablet Screenshot - Above Desktop */}
-              <div class="absolute -right-[10px] -bottom-[112px] w-[65%] z-30 group-hover:-translate-y-2 transition-transform duration-300">
-                <img 
-                  src="/screenshots/supabase-tablet.jpeg"
-                  alt="Tablet view"
-                  class="rounded-tl-lg shadow-lg w-full object-cover"
-                  style="aspect-ratio: 4/3;"
-                />
-              </div>
-              {/* Mobile Screenshot - Bottom Left, Peeking */}
-              <div class="absolute left-0 -bottom-16 w-[35%] z-10 group-hover:translate-y-2 transition-transform duration-300">
-                <Image 
-                  src={mobileScreen}
-                  alt="Mobile view"
-                  class="rounded-tr-lg shadow-lg w-full object-cover"
-                  loading="lazy"
-                  format="webp"
-                />
+
+              {/* Visit Website Button */}
+              <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                <span class="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
+                  Visit Website →
+                </span>
               </div>
             </div>
-            {/* Hover Overlay */}
-            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-              <div class="absolute bottom-0 left-0 right-0 p-6">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <img class="w-8 h-8 rounded-full ring-2 ring-white/50" src="https://avatars.githubusercontent.com/u/1" alt="Added by" />
-                    <div class="text-white">
-                      <p class="text-sm font-medium">Dodane przez Szymona</p>
-                      <p class="text-xs opacity-75">Dziś o 12:42</p>
-                    </div>
+
+            <div class="p-6">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 group-hover:text-purple-700 transition-colors duration-300">Granola</h3>
+                <span class="text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full mono shrink-0">E-commerce</span>
+              </div>
+              <div class="flex flex-col">
+                <div class="flex items-center justify-between pb-4">
+                  <span class="text-xs text-gray-400 mono">granola.com</span>
+                  <span class="text-xs text-gray-400 mono">Added recently</span>
+                </div>
+                <div class="flex items-center gap-2 border-t border-gray-100 pt-4">
+                  <div class="flex -space-x-1">
+                    <img class="w-5 h-5 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/1" alt="Contributor" />
+                    <img class="w-5 h-5 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/2" alt="Contributor" />
+                    <div class="w-5 h-5 rounded-full bg-gray-50 ring-2 ring-white flex items-center justify-center text-[9px] text-gray-500">+5</div>
                   </div>
-                  <button class="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/20 transition-colors duration-200">
-                    Zobacz szczegóły →
-                  </button>
+                  <span class="text-xs text-gray-400 mono">Liked by 7 contributors</span>
                 </div>
               </div>
             </div>
           </div>
-          <div class="p-6">
-            <div class="flex items-start justify-between gap-4">
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900">Supabase</h3>
-                <p class="text-sm text-gray-600 mt-1">Open source Firebase alternative</p>
-              </div>
-              <span class="text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full mono font-medium">SaaS</span>
-            </div>
-            <div class="mt-4 pt-4 border-t border-gray-100">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                  <span class="text-xs text-gray-500 mono">supabase.com</span>
-                  <span class="text-xs text-gray-500 mono">⭐️ 12 polubień</span>
-                </div>
-                <div class="flex -space-x-2">
-                  <img class="w-6 h-6 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/1" alt="Liker" />
-                  <img class="w-6 h-6 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/2" alt="Liker" />
-                  <div class="w-6 h-6 rounded-full ring-2 ring-white bg-gray-50 flex items-center justify-center text-[10px] text-gray-500">+10</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        </a>
 
-        {/* Wide Card 2 */}
-        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div class="bg-neutral-100 p-4">
-            {/* Mobile & Tablet Container */}
-            <div class="flex gap-6 mb-8">
-              {/* Mobile */}
-              <div class="w-[40%]">
+        {/* Wide Card 2 - Supabase */}
+        <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" class="block">
+          <div class="bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group">
+            <div class="bg-[#EAEAEA] p-4 group-hover:bg-[#F0F0F0] transition-colors duration-300 relative">
+              {/* Gradient Overlay */}
+              <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"></div>
+              
+              {/* Mobile & Tablet Container */}
+              <div class="flex gap-3">
+                {/* Mobile */}
+                <div class="w-[40%] h-[290px] overflow-hidden rounded-lg">
+                  <Image 
+                    src={import("../assets/screenshots/supabase-mobile.jpeg")}
+                    alt="Mobile view"
+                    class="w-full h-full shadow-sm object-cover"
+                  />
+                </div>
+                {/* Tablet */}
+                <div class="w-[60%] h-[290px] overflow-hidden rounded-lg">
+                  <Image 
+                    src={import("../assets/screenshots/supabase-tablet.jpeg")}
+                    alt="Tablet view"
+                    class="w-full h-full shadow-sm object-cover"
+                  />
+                </div>
+              </div>
+              
+              {/* Desktop - Below */}
+              <div class="mt-3 overflow-hidden rounded-lg">
                 <Image 
-                  src={mobileScreen}
-                  alt="Mobile view"
-                  class="w-full rounded-lg shadow-sm"
-                  loading="lazy"
-                  format="webp"
+                  src={import("../assets/screenshots/supabase-desktop.jpeg")}
+                  alt="Desktop view"
+                  class="w-full shadow-sm"
                 />
               </div>
-              {/* Tablet */}
-              <div class="w-[60%]">
-                <Image 
-                  src={tabletScreen}
-                  alt="Tablet view"
-                  class="w-full rounded-lg shadow-sm"
-                  loading="lazy"
-                  format="webp"
-                />
+
+              {/* Visit Website Button */}
+              <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                <span class="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
+                  Visit Website →
+                </span>
               </div>
             </div>
-            
-            {/* Desktop - Below */}
-            <div>
-              <Image 
-                src={desktopScreen}
-                alt="Desktop view"
-                class="w-full rounded-lg shadow-sm"
-                loading="lazy"
-                format="webp"
-              />
+
+            <div class="p-6">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 group-hover:text-purple-700 transition-colors duration-300">Supabase</h3>
+                <span class="text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full mono shrink-0">SaaS</span>
+              </div>
+              <div class="flex flex-col">
+                <div class="flex items-center justify-between pb-4">
+                  <span class="text-xs text-gray-400 mono">supabase.com</span>
+                  <span class="text-xs text-gray-400 mono">Added recently</span>
+                </div>
+                <div class="flex items-center gap-2 border-t border-gray-100 pt-4">
+                  <div class="flex -space-x-1">
+                    <img class="w-5 h-5 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/1" alt="Contributor" />
+                    <img class="w-5 h-5 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/2" alt="Contributor" />
+                    <div class="w-5 h-5 rounded-full bg-gray-50 ring-2 ring-white flex items-center justify-center text-[9px] text-gray-500">+5</div>
+                  </div>
+                  <span class="text-xs text-gray-400 mono">Liked by 7 contributors</span>
+                </div>
+              </div>
             </div>
           </div>
+        </a>
 
-          <div class="p-6">
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">Supabase</h3>
-              <span class="text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full">SaaS</span>
+        {/* Wide Card 3 - Hi Daisy */}
+        <a href="https://hidaisy.com" target="_blank" rel="noopener noreferrer" class="block">
+          <div class="bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group">
+            <div class="bg-[#EAEAEA] p-4 group-hover:bg-[#F0F0F0] transition-colors duration-300 relative">
+              {/* Gradient Overlay */}
+              <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"></div>
+              
+              {/* Mobile & Tablet Container */}
+              <div class="flex gap-3">
+                {/* Mobile */}
+                <div class="w-[40%] h-[290px] overflow-hidden rounded-lg">
+                  <Image 
+                    src={import("../assets/screenshots/hidaisy-mobile.jpeg")}
+                    alt="Mobile view"
+                    class="w-full h-full shadow-sm object-cover"
+                  />
+                </div>
+                {/* Tablet */}
+                <div class="w-[60%] h-[290px] overflow-hidden rounded-lg">
+                  <Image 
+                    src={import("../assets/screenshots/hidaisy-tablet.jpeg")}
+                    alt="Tablet view"
+                    class="w-full h-full shadow-sm object-cover"
+                  />
+                </div>
+              </div>
+              
+              {/* Desktop - Below */}
+              <div class="mt-3 overflow-hidden rounded-lg">
+                <Image 
+                  src={import("../assets/screenshots/hidaisy-desktop.jpeg")}
+                  alt="Desktop view"
+                  class="w-full shadow-sm"
+                />
+              </div>
+
+              {/* Visit Website Button */}
+              <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                <span class="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
+                  Visit Website →
+                </span>
+              </div>
             </div>
-            <p class="text-sm text-gray-600 mt-1">Open source Firebase alternative</p>
-          </div>
-        </div>
 
-        {/* Wide Card 3 - Template for more */}
-        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group">
-          {/* Copy structure from Wide Card 1 and customize */}
-        </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 group-hover:text-purple-700 transition-colors duration-300">Hi Daisy</h3>
+                <span class="text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full mono shrink-0">Portfolio</span>
+              </div>
+              <div class="flex flex-col">
+                <div class="flex items-center justify-between pb-4">
+                  <span class="text-xs text-gray-400 mono">hidaisy.com</span>
+                  <span class="text-xs text-gray-400 mono">Added recently</span>
+                </div>
+                <div class="flex items-center gap-2 border-t border-gray-100 pt-4">
+                  <div class="flex -space-x-1">
+                    <img class="w-5 h-5 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/1" alt="Contributor" />
+                    <img class="w-5 h-5 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/2" alt="Contributor" />
+                    <div class="w-5 h-5 rounded-full bg-gray-50 ring-2 ring-white flex items-center justify-center text-[9px] text-gray-500">+5</div>
+                  </div>
+                  <span class="text-xs text-gray-400 mono">Liked by 7 contributors</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        {/* Wide Card 4 - Made by Porter */}
+        <a href="https://madebyporter.com" target="_blank" rel="noopener noreferrer" class="block">
+          <div class="bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group">
+            <div class="bg-[#EAEAEA] p-4 group-hover:bg-[#F0F0F0] transition-colors duration-300 relative">
+              {/* Gradient Overlay */}
+              <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"></div>
+              
+              {/* Mobile & Tablet Container */}
+              <div class="flex gap-3">
+                {/* Mobile */}
+                <div class="w-[40%] h-[290px] overflow-hidden rounded-lg">
+                  <Image 
+                    src={import("../assets/screenshots/madebyporter-mobile.jpeg")}
+                    alt="Mobile view"
+                    class="w-full h-full shadow-sm object-cover"
+                  />
+                </div>
+                {/* Tablet */}
+                <div class="w-[60%] h-[290px] overflow-hidden rounded-lg">
+                  <Image 
+                    src={import("../assets/screenshots/madebyporter-tablet.jpeg")}
+                    alt="Tablet view"
+                    class="w-full h-full shadow-sm object-cover"
+                  />
+                </div>
+              </div>
+              
+              {/* Desktop - Below */}
+              <div class="mt-3 overflow-hidden rounded-lg">
+                <Image 
+                  src={import("../assets/screenshots/madebyporter-desktop.jpeg")}
+                  alt="Desktop view"
+                  class="w-full shadow-sm"
+                />
+              </div>
+
+              {/* Visit Website Button */}
+              <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                <span class="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
+                  Visit Website →
+                </span>
+              </div>
+            </div>
+
+            <div class="p-6">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 group-hover:text-purple-700 transition-colors duration-300">Made by Porter</h3>
+                <span class="text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full mono shrink-0">Portfolio</span>
+              </div>
+              <div class="flex flex-col">
+                <div class="flex items-center justify-between pb-4">
+                  <span class="text-xs text-gray-400 mono">madebyporter.com</span>
+                  <span class="text-xs text-gray-400 mono">Added recently</span>
+                </div>
+                <div class="flex items-center gap-2 border-t border-gray-100 pt-4">
+                  <div class="flex -space-x-1">
+                    <img class="w-5 h-5 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/1" alt="Contributor" />
+                    <img class="w-5 h-5 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/2" alt="Contributor" />
+                    <div class="w-5 h-5 rounded-full bg-gray-50 ring-2 ring-white flex items-center justify-center text-[9px] text-gray-500">+5</div>
+                  </div>
+                  <span class="text-xs text-gray-400 mono">Liked by 7 contributors</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        {/* Wide Card 5 - Six B */}
+        <a href="https://sixb.com" target="_blank" rel="noopener noreferrer" class="block">
+          <div class="bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group">
+            <div class="bg-[#EAEAEA] p-4 group-hover:bg-[#F0F0F0] transition-colors duration-300 relative">
+              {/* Gradient Overlay */}
+              <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"></div>
+              
+              {/* Mobile & Tablet Container */}
+              <div class="flex gap-3">
+                {/* Mobile */}
+                <div class="w-[40%] h-[290px] overflow-hidden rounded-lg">
+                  <Image 
+                    src={import("../assets/screenshots/sixb-mobile.jpeg")}
+                    alt="Mobile view"
+                    class="w-full h-full shadow-sm object-cover"
+                  />
+                </div>
+                {/* Tablet */}
+                <div class="w-[60%] h-[290px] overflow-hidden rounded-lg">
+                  <Image 
+                    src={import("../assets/screenshots/sixb-tablet.jpeg")}
+                    alt="Tablet view"
+                    class="w-full h-full shadow-sm object-cover"
+                  />
+                </div>
+              </div>
+              
+              {/* Desktop - Below */}
+              <div class="mt-3 overflow-hidden rounded-lg">
+                <Image 
+                  src={import("../assets/screenshots/sixb-desktop.jpeg")}
+                  alt="Desktop view"
+                  class="w-full shadow-sm"
+                />
+              </div>
+
+              {/* Visit Website Button */}
+              <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                <span class="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
+                  Visit Website →
+                </span>
+              </div>
+            </div>
+
+            <div class="p-6">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 group-hover:text-purple-700 transition-colors duration-300">Six B</h3>
+                <span class="text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full mono shrink-0">Agency</span>
+              </div>
+              <div class="flex flex-col">
+                <div class="flex items-center justify-between pb-4">
+                  <span class="text-xs text-gray-400 mono">sixb.com</span>
+                  <span class="text-xs text-gray-400 mono">Added recently</span>
+                </div>
+                <div class="flex items-center gap-2 border-t border-gray-100 pt-4">
+                  <div class="flex -space-x-1">
+                    <img class="w-5 h-5 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/1" alt="Contributor" />
+                    <img class="w-5 h-5 rounded-full ring-2 ring-white" src="https://avatars.githubusercontent.com/u/2" alt="Contributor" />
+                    <div class="w-5 h-5 rounded-full bg-gray-50 ring-2 ring-white flex items-center justify-center text-[9px] text-gray-500">+5</div>
+                  </div>
+                  <span class="text-xs text-gray-400 mono">Liked by 7 contributors</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
 
       </div>
     </div>
