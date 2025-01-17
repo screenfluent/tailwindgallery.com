@@ -1,0 +1,10 @@
+{
+  "name": "tailwindgallery",
+  "description": "A curated collection of beautiful websites built with Tailwind CSS",
+  "checks": {
+    "web": {
+      "port": 80,
+      "path": "/"
+    }
+  }
+} 
