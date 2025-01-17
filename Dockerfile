@@ -5,6 +5,11 @@ FROM node:20 AS build
 WORKDIR /app
 # Set the working directory to /app
 
+# Dodaj zależności dla Sharp
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libvips-dev
+
 RUN npm install -g pnpm
 # Install pnpm globally
 
