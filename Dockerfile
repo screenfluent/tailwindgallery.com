@@ -16,8 +16,8 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
 # Copy package.json and pnpm-lock.yaml to the working directory
 
-RUN pnpm install --frozen-lockfile
-# Install dependencies using pnpm with frozen lockfile
+# Ważne: instaluj z --unsafe-perm dla Sharp
+RUN pnpm install --frozen-lockfile --unsafe-perm=true
 
 COPY . .
 # Copy the rest of the application files to the working directory
