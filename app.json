@@ -4,7 +4,10 @@
   "checks": {
     "web": {
       "port": 80,
-      "path": "/"
+      "path": "/",
+      "attempts": 3,
+      "timeout": 5,
+      "wait": 5
     }
   }
 } 
