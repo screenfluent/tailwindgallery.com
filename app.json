@@ -1,6 +1,19 @@
 {
   "name": "tailwindgallery",
   "description": "A curated collection of beautiful websites built with Tailwind CSS",
+  "healthchecks": {
+    "web": [
+      {
+        "type": "startup",
+        "name": "web check",
+        "description": "Checking if web server started",
+        "path": "/",
+        "attempts": 3,
+        "timeout": 5,
+        "wait": 5
+      }
+    ]
+  },
   "checks": {
     "web": {
       "port": 80,
@@ -10,4 +23,4 @@
       "wait": 5
     }
   }
-} 
+}
