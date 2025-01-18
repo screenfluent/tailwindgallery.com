@@ -3,9 +3,8 @@ FROM node:20 AS build
 WORKDIR /app
 
 # Cache dependencies
-COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm
-RUN pnpm install --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # Dodaj zależności dla Sharp
 RUN apt-get update && apt-get install -y \
@@ -14,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 
 # Build app
 COPY . .
-RUN pnpm run build
+RUN npm run build
 
 # Serve stage
 FROM nginx:alpine
