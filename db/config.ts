@@ -269,6 +269,6 @@ export default defineDb({
     WebsiteTechnologies, 
     Activities, 
     Profiles,
-    Subscriptions, // Add new table
+    Subscriptions,
   },
 });
