@@ -1,10 +1,13 @@
 ---
 import { db, Users, Websites, Activities } from 'astro:db';
 import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import WebsiteCard from '../components/WebsiteCard.astro';
+
+// Importy screenshotów dla testu
 import mobileScreen from '../assets/screenshots/supabase-mobile.jpeg';
 import tabletScreen from '../assets/screenshots/supabase-tablet.jpeg';
 import desktopScreen from '../assets/screenshots/supabase-desktop.jpeg';
-import Layout from '../layouts/Layout.astro';
 
 // Basic interfaces
 interface User {
@@ -113,7 +116,18 @@ const weeklyStats = {
     </div>
 
     <!-- Websites Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <WebsiteCard 
+        title="Supabase Test"
+        url="https://supabase.com"
+        category="SaaS"
+        screenshots={{
+          mobile: mobileScreen,
+          tablet: tabletScreen,
+          desktop: desktopScreen
+        }}
+      />
+
       {/* Card 2: Submitter + 2 likes */}
       <div class="bg-white rounded-lg shadow-[0_10px_15px_-3px_rgba(0,0,0,0.05),0_4px_6px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
         <a href="#" target="_blank" rel="noopener noreferrer">
