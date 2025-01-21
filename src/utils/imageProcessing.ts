@@ -19,15 +19,15 @@ export async function createWebsiteCollage(
     };
 
     // Spacing between elements
-    const GAP = 20;
+    const GAP = 30;
 
     // Height of the top row (mobile and tablet)
-    const TOP_ROW_HEIGHT = 480;
+    const TOP_ROW_HEIGHT = 880;
     
     // Element widths
     const WIDTHS = {
         mobile: 380,    // Narrower mobile
-        tablet: 580,    // Wider tablet
+        tablet: 540,    // Wider tablet
         desktop: CANVAS.width - (GAP * 2) // Full width minus margins
     };
 
