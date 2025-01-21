@@ -3,8 +3,8 @@ import type { ImageMetadata } from 'astro';
 import fs from 'node:fs/promises';
 
 function cleanImagePath(src: string): string {
-    // Usuń parametry z URL (wszystko po ?)
-    return src.split('?')[0].replace('/@fs', '');
+    // Remove /@fs prefix and URL parameters
+    return src.replace(/^\/@fs/, '').split('?')[0];
 }
 
 export async function createWebsiteCollage(
@@ -12,51 +12,98 @@ export async function createWebsiteCollage(
     tablet: ImageMetadata,
     desktop: ImageMetadata
 ) {
-    // Stwórz tło
+    // Canvas dimensions
+    const CANVAS = {
+        width: 1000,
+        height: 1000
+    };
+
+    // Spacing between elements
+    const GAP = 20;
+
+    // Height of the top row (mobile and tablet)
+    const TOP_ROW_HEIGHT = 480;
+    
+    // Element widths
+    const WIDTHS = {
+        mobile: 380,    // Narrower mobile
+        tablet: 580,    // Wider tablet
+        desktop: CANVAS.width - (GAP * 2) // Full width minus margins
+    };
+
+    // Element heights
+    const HEIGHTS = {
+        mobile: TOP_ROW_HEIGHT,
+        tablet: TOP_ROW_HEIGHT,
+        desktop: 480
+    };
+
+    // Element positions
+    const POSITIONS = {
+        mobile: { top: GAP, left: GAP },
+        tablet: { top: GAP, left: WIDTHS.mobile + (GAP * 2) },
+        desktop: { top: TOP_ROW_HEIGHT + (GAP * 2), left: GAP }
+    };
+
+    const BACKGROUND_COLOR = { r: 245, g: 245, b: 245, alpha: 1 };
+
+    // Create background
     const background = await sharp({
         create: {
-            width: 720,
-            height: 1000,
+            width: CANVAS.width,
+            height: CANVAS.height,
             channels: 4,
-            background: { r: 234, g: 234, b: 234, alpha: 1 } // #EAEAEA
+            background: BACKGROUND_COLOR
         }
     }).webp().toBuffer();
 
-    // Przygotuj obrazki
-    const mobileResized = await sharp(await fs.readFile(cleanImagePath(mobile.src)))
-        .resize(290, 580, { fit: 'cover' })
-        .webp()
-        .toBuffer();
+    try {
+        const [mobileResized, tabletResized, desktopResized] = await Promise.all([
+            sharp(await fs.readFile(cleanImagePath(mobile.src)))
+                .resize(WIDTHS.mobile, HEIGHTS.mobile, { fit: 'cover' })
+                .webp()
+                .toBuffer(),
+            sharp(await fs.readFile(cleanImagePath(tablet.src)))
+                .resize(WIDTHS.tablet, HEIGHTS.tablet, { fit: 'cover' })
+                .webp()
+                .toBuffer(),
+            sharp(await fs.readFile(cleanImagePath(desktop.src)))
+                .resize(WIDTHS.desktop, HEIGHTS.desktop, { fit: 'cover' })
+                .webp()
+                .toBuffer()
+        ]);
 
-    const tabletResized = await sharp(await fs.readFile(cleanImagePath(tablet.src)))
-        .resize(430, 580, { fit: 'cover' })
-        .webp()
-        .toBuffer();
+        return await sharp(background)
+            .composite([
+                {
+                    input: mobileResized,
+                    ...POSITIONS.mobile
+                },
+                {
+                    input: tabletResized,
+                    ...POSITIONS.tablet
+                },
+                {
+                    input: desktopResized,
+                    ...POSITIONS.desktop
+                }
+            ])
+            .webp()
+            .toBuffer();
+    } catch (error) {
+        console.error('Error processing images:', error);
+        throw new Error('Failed to create collage');
+    }
+}
 
-    const desktopResized = await sharp(await fs.readFile(cleanImagePath(desktop.src)))
-        .resize(720, 400, { fit: 'cover' })
-        .webp()
-        .toBuffer();
-
-    // Połącz obrazki
-    return await sharp(background)
-        .composite([
-            {
-                input: mobileResized,
-                top: 20,
-                left: 20,
-            },
-            {
-                input: tabletResized,
-                top: 20,
-                left: 330,
-            },
-            {
-                input: desktopResized,
-                top: 580,
-                left: 20,
-            }
-        ])
-        .webp()
-        .toBuffer();
+// Add new function to save collage
+export async function saveWebsiteCollage(
+    mobile: ImageMetadata,
+    tablet: ImageMetadata,
+    desktop: ImageMetadata,
+    outputPath: string
+) {
+    const collageBuffer = await createWebsiteCollage(mobile, tablet, desktop);
+    await fs.writeFile(outputPath, collageBuffer);
+    console.log(`Collage has been saved to: ${outputPath}`);
 } 
