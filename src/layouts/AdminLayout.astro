@@ -1,0 +1,82 @@
+---
+import { ViewTransitions } from 'astro:transitions';
+
+interface Props {
+    title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content="Admin panel for TailwindGallery" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title} | Admin</title>
+        <ViewTransitions />
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+        <div class="min-h-screen flex">
+            <!-- Sidebar -->
+            <aside class="w-64 bg-white border-r border-gray-200">
+                <div class="h-16 flex items-center px-6 border-b border-gray-200">
+                    <span class="text-lg font-semibold">TailwindGallery</span>
+                </div>
+                <nav class="p-4 space-y-1">
+                    <a href="/admin" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/websites" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                        Websites
+                    </a>
+                    <a href="/admin/users" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        Users
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main content -->
+            <main class="flex-1">
+                <div class="h-16 border-b border-gray-200 bg-white flex items-center justify-between px-8">
+                    <h1 class="text-2xl font-semibold text-gray-900">{title}</h1>
+                </div>
+                <div class="p-8">
+                    <slot />
+                </div>
+            </main>
+        </div>
+    </body>
+</html>
+
+<style>
+    html,
+    body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    /* Apply IBM Plex Mono to technical elements */
+    code, pre, .mono {
+        font-family: 'IBM Plex Mono', monospace;
+    }
+</style> 
