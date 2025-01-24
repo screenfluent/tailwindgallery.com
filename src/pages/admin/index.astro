@@ -1,75 +1,70 @@
-import { Users, Websites, Activities } from 'astro:db';
+---
+import { db, sql, Users, Websites, Activities } from 'astro:db';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
-// Fetch basic stats
-const websitesCount = await Websites.count();
-const usersCount = await Users.count();
-const recentActivities = await Activities
+// If you do want SSR for real-time data:
+export const prerender = false;
+
+// Get total number of websites
+const [{ count: websitesCount }] = await db
+  .select({ count: sql<number>`count(*)` })
+  .from(Websites);
+
+// Get total number of users
+const [{ count: usersCount }] = await db
+  .select({ count: sql<number>`count(*)` })
+  .from(Users);
+
+// Get last 5 activities
+const recentActivities = await db
   .select()
-  .orderBy('createdAt', 'desc')
+  .from(Activities)
+  .orderBy(Activities.createdAt, 'desc')
   .limit(5);
+---
 
 <AdminLayout title="Dashboard">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Total Websites -->
-        <div class="bg-white p-6 rounded-xl border border-gray-200">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-medium text-gray-500">Total Websites</h3>
-                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                </svg>
-            </div>
-            <p class="text-2xl font-semibold text-gray-900">{websitesCount}</p>
-        </div>
-
-        <!-- Total Users -->
-        <div class="bg-white p-6 rounded-xl border border-gray-200">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-medium text-gray-500">Total Users</h3>
-                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-            </div>
-            <p class="text-2xl font-semibold text-gray-900">{usersCount}</p>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="bg-white p-6 rounded-xl border border-gray-200">
-            <h3 class="text-sm font-medium text-gray-500 mb-4">Quick Actions</h3>
-            <div class="space-y-2">
-                <a href="/admin/websites/new" class="block text-sm text-purple-600 hover:text-purple-700">+ Add New Website</a>
-                <a href="/admin/users/new" class="block text-sm text-purple-600 hover:text-purple-700">+ Add New User</a>
-            </div>
-        </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Total Websites -->
+    <div class="bg-white p-6 rounded-xl border border-gray-200">
+      <h3 class="text-sm font-medium text-gray-500 mb-1">Total Websites</h3>
+      <p class="text-2xl font-semibold text-gray-900">{websitesCount}</p>
     </div>
 
-    <!-- Recent Activity -->
-    <div class="bg-white rounded-xl border border-gray-200">
-        <div class="border-b border-gray-200 px-6 py-4">
-            <h3 class="text-sm font-medium text-gray-500">Recent Activity</h3>
-        </div>
-        <div class="divide-y divide-gray-200">
-            {recentActivities.map((activity) => (
-                <div class="px-6 py-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                {activity.type === 'website_submission' ? (
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                ) : activity.type === 'user_joined' ? (
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                ) : (
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                )}
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-900">{activity.metadata?.title || 'Activity'}</p>
-                            <p class="text-xs text-gray-500 mono">{new Date(activity.createdAt).toLocaleDateString()}</p>
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
+    <!-- Total Users -->
+    <div class="bg-white p-6 rounded-xl border border-gray-200">
+      <h3 class="text-sm font-medium text-gray-500 mb-1">Total Users</h3>
+      <p class="text-2xl font-semibold text-gray-900">{usersCount}</p>
     </div>
-</AdminLayout> 
+
+    <!-- Quick Actions -->
+    <div class="bg-white p-6 rounded-xl border border-gray-200">
+      <h3 class="text-sm font-medium text-gray-500 mb-4">Quick Actions</h3>
+      <div class="space-y-2">
+        <a href="/admin/websites/new" class="block text-sm text-purple-600 hover:text-purple-700">
+          + Add New Website
+        </a>
+        <a href="/admin/users/new" class="block text-sm text-purple-600 hover:text-purple-700">
+          + Add New User
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="bg-white rounded-xl border border-gray-200">
+    <div class="border-b border-gray-200 px-6 py-4">
+      <h3 class="text-sm font-medium text-gray-500">Recent Activity</h3>
+    </div>
+    <div class="divide-y divide-gray-200">
+      {recentActivities.map((activity) => (
+        <div class="px-6 py-4">
+          <p class="text-sm text-gray-900">{activity.type}</p>
+          <p class="text-xs text-gray-500 mono">
+            {new Date(activity.createdAt).toLocaleDateString()}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+</AdminLayout>
